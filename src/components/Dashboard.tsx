@@ -7,6 +7,7 @@ import { ServerDetailsDialog } from './ServerDetailsDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Database, Warning, ArrowsClockwise, Clock, TrendUp, CalendarBlank } from '@phosphor-icons/react';
 
@@ -63,7 +64,6 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
       if (st === 'maintenance' || s.status === 'maintenance') { maintenance++; return; }
       if (st === 'available') { available++; return; }
 
-      // Check for overdue
       const activeB = bookings.find(b => b.serverId === s.id && (b.status === 'active' || b.status === 'pending-renewal'));
       if (activeB) {
         const end = new Date(activeB.endDate);
@@ -87,21 +87,18 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
     return { available, reserved, overdue, maintenance, total, utilization, overdueList, endingSoon, activeBookings, avgDuration };
   }, [servers, bookings, now]);
 
-  // Available gen filters from data
   const availableGens = useMemo(() => {
     const gens = new Set<string>();
     servers.forEach(s => { const g = detectGen(s.specifications.cpu); if (g) gens.add(g); });
     return Array.from(gens).sort();
   }, [servers]);
 
-  // Filter servers
   const filtered = useMemo(() => servers.filter(s => {
     if (archFilter !== 'all' && detectArch(s.specifications.cpu) !== archFilter) return false;
     if (genFilter !== 'all' && detectGen(s.specifications.cpu) !== genFilter) return false;
     return true;
   }), [servers, archFilter, genFilter]);
 
-  // Chart data
   const pieData = [
     { name: 'Available', value: stats.available, color: COLORS.available },
     { name: 'Reserved', value: stats.reserved, color: COLORS.booked },
@@ -232,7 +229,6 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Donut Chart */}
         <Card className="border shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">✦ Server Status Distribution</CardTitle>
@@ -259,7 +255,6 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
           </CardContent>
         </Card>
 
-        {/* Activity Bar Chart */}
         <Card className="border shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">📈 Activity Overview</CardTitle>
@@ -343,6 +338,94 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
           </CardContent>
         </Card>
       )}
+
+      {/* ═══ Server Allocation Table ═══ */}
+      <Card className="border shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            📋 Server Allocation Overview
+            {stats.activeBookings.length > 0 && (
+              <Badge variant="secondary" className="ml-2 text-xs">{stats.activeBookings.length} active</Badge>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-50/80">
+                  <TableHead className="whitespace-nowrap text-xs font-semibold">Team Assigned</TableHead>
+                  <TableHead className="whitespace-nowrap text-xs font-semibold">User</TableHead>
+                  <TableHead className="whitespace-nowrap text-xs font-semibold">Server</TableHead>
+                  <TableHead className="whitespace-nowrap text-xs font-semibold">Status</TableHead>
+                  <TableHead className="whitespace-nowrap text-xs font-semibold">Date Allocated</TableHead>
+                  <TableHead className="whitespace-nowrap text-xs font-semibold">Duration (days)</TableHead>
+                  <TableHead className="whitespace-nowrap text-xs font-semibold">Test Harness</TableHead>
+                  <TableHead className="whitespace-nowrap text-xs font-semibold">RScm IP</TableHead>
+                  <TableHead className="whitespace-nowrap text-xs font-semibold">Slot ID</TableHead>
+                  <TableHead className="whitespace-nowrap text-xs font-semibold">FW Version</TableHead>
+                  <TableHead className="whitespace-nowrap text-xs font-semibold">DS</TableHead>
+                  <TableHead className="whitespace-nowrap text-xs font-semibold">Pool</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {stats.activeBookings.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={12} className="text-center py-8 text-gray-400 text-sm">
+                      No active bookings — all servers are available
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  stats.activeBookings.map(booking => {
+                    const srv = servers.find(s => s.id === booking.serverId);
+                    const isOverdue = new Date(booking.endDate) < now;
+                    return (
+                      <TableRow key={booking.id} className={`text-sm ${isOverdue ? 'bg-red-50/40' : 'hover:bg-gray-50/60'}`}>
+                        <TableCell className="font-medium whitespace-nowrap">
+                          {booking.teamAssigned || <span className="text-gray-300">—</span>}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">{booking.userName}</TableCell>
+                        <TableCell className="font-mono text-xs whitespace-nowrap">{booking.serverName}</TableCell>
+                        <TableCell>
+                          <Badge className={`text-xs ${
+                            isOverdue
+                              ? 'bg-red-100 text-red-700 border-red-200'
+                              : 'bg-blue-100 text-blue-700 border-blue-200'
+                          }`}>
+                            {isOverdue ? 'Overdue' : 'In Use'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap text-xs text-gray-600">
+                          {formatDate(booking.startDate)}
+                        </TableCell>
+                        <TableCell className="text-center">{booking.daysBooked}</TableCell>
+                        <TableCell className="whitespace-nowrap text-xs text-gray-600">
+                          {srv?.testHarness || <span className="text-gray-300">TBD</span>}
+                        </TableCell>
+                        <TableCell className="font-mono text-xs whitespace-nowrap text-gray-600">
+                          {srv?.rscmIp || <span className="text-gray-300">—</span>}
+                        </TableCell>
+                        <TableCell className="text-center text-xs text-gray-600">
+                          {srv?.slotId != null ? srv.slotId : <span className="text-gray-300">—</span>}
+                        </TableCell>
+                        <TableCell className="text-xs whitespace-nowrap text-gray-600">
+                          {srv?.fwVersion || <span className="text-gray-300">—</span>}
+                        </TableCell>
+                        <TableCell className="text-xs whitespace-nowrap text-gray-600">
+                          {srv?.dsPool || <span className="text-gray-300">—</span>}
+                        </TableCell>
+                        <TableCell className="text-xs whitespace-nowrap text-gray-600 max-w-[200px] truncate" title={srv?.pool || ''}>
+                          {srv?.pool || <span className="text-gray-300">—</span>}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Server Grid */}
       {filtered.length > 0 && (

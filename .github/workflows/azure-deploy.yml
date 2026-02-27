@@ -54,21 +54,47 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Log in to Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Deploy backend Container App
-        uses: azure/container-apps-deploy-action@v1
+        uses: azure/CLI@v1
         with:
-          resourceGroup: ${{ env.RESOURCE_GROUP }}
-          containerAppName: ${{ env.BACKEND_APP }}
-          imageToDeploy: ${{ env.ACR_REGISTRY }}/${{ env.BACKEND_APP }}:${{ needs.build-and-push.outputs.image_tag }}
+          inlineScript: |
+            az containerapp update \
+              --name ${{ env.BACKEND_APP }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --image ${{ env.ACR_REGISTRY }}/${{ env.BACKEND_APP }}:${{ needs.build-and-push.outputs.image_tag }} \
+              --set-env-vars \
+                NODE_ENV=production \
+                PORT=3001 \
+                LOG_LEVEL=info \
+                DATABASE_URL=secretref:database-url \
+                JWT_SECRET=secretref:jwt-secret \
+                FRONTEND_URL=secretref:frontend-url
+
+      - name: Get backend FQDN
+        id: backend-fqdn
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            FQDN=$(az containerapp show \
+              --name ${{ env.BACKEND_APP }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --query properties.configuration.ingress.fqdn -o tsv)
+            echo "fqdn=https://$FQDN" >> $GITHUB_OUTPUT
 
       - name: Deploy frontend Container App
-        uses: azure/container-apps-deploy-action@v1
+        uses: azure/CLI@v1
         with:
-          resourceGroup: ${{ env.RESOURCE_GROUP }}
-          containerAppName: ${{ env.FRONTEND_APP }}
-          imageToDeploy: ${{ env.ACR_REGISTRY }}/${{ env.FRONTEND_APP }}:${{ needs.build-and-push.outputs.image_tag }}
+          inlineScript: |
+            az containerapp update \
+              --name ${{ env.FRONTEND_APP }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --image ${{ env.ACR_REGISTRY }}/${{ env.FRONTEND_APP }}:${{ needs.build-and-push.outputs.image_tag }} \
+              --set-env-vars \
+                BACKEND_URL=${{ steps.backend-fqdn.outputs.fqdn }}

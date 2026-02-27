@@ -13,6 +13,12 @@ type ServerPayload = {
   specifications: { cpu: string; memory: string; storage: string; gpu?: string };
   location: string;
   status?: string;
+  rscmIp?: string;
+  slotId?: number;
+  fwVersion?: string;
+  dsPool?: string;
+  testHarness?: string;
+  pool?: string;
 };
 
 interface AddServerDialogProps {
@@ -24,12 +30,16 @@ interface AddServerDialogProps {
 export function AddServerDialog({ open, onOpenChange, onServerAdd }: AddServerDialogProps) {
   const [formData, setFormData] = useState({
     name: '', cpu: '', memory: '', storage: '', gpu: '', location: '', status: 'available',
+    rscmIp: '', slotId: '', fwVersion: '', dsPool: '', testHarness: '', pool: '',
   });
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const resetForm = () => {
-    setFormData({ name: '', cpu: '', memory: '', storage: '', gpu: '', location: '', status: 'available' });
+    setFormData({
+      name: '', cpu: '', memory: '', storage: '', gpu: '', location: '', status: 'available',
+      rscmIp: '', slotId: '', fwVersion: '', dsPool: '', testHarness: '', pool: '',
+    });
     setError(null);
     setIsSubmitting(false);
   };
@@ -54,6 +64,12 @@ export function AddServerDialog({ open, onOpenChange, onServerAdd }: AddServerDi
         },
         status: formData.status,
         location: formData.location.trim(),
+        ...(formData.rscmIp.trim() ? { rscmIp: formData.rscmIp.trim() } : {}),
+        ...(formData.slotId.trim() ? { slotId: Number(formData.slotId) } : {}),
+        ...(formData.fwVersion.trim() ? { fwVersion: formData.fwVersion.trim() } : {}),
+        ...(formData.dsPool.trim() ? { dsPool: formData.dsPool.trim() } : {}),
+        ...(formData.testHarness.trim() ? { testHarness: formData.testHarness.trim() } : {}),
+        ...(formData.pool.trim() ? { pool: formData.pool.trim() } : {}),
       });
       toast.success(`Server "${formData.name}" added successfully!`);
       handleClose();
@@ -67,7 +83,7 @@ export function AddServerDialog({ open, onOpenChange, onServerAdd }: AddServerDi
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Plus size={20} className="text-primary" />
@@ -79,11 +95,11 @@ export function AddServerDialog({ open, onOpenChange, onServerAdd }: AddServerDi
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2 col-span-2">
               <Label htmlFor="server-name">Server Name *</Label>
-              <Input id="server-name" placeholder="e.g., Lab-AMD-Server-01" value={formData.name} onChange={e => set('name', e.target.value)} required />
+              <Input id="server-name" placeholder="e.g., C41431103M0902A" value={formData.name} onChange={e => set('name', e.target.value)} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="cpu">CPU *</Label>
-              <Input id="cpu" placeholder="e.g., AMD EPYC 7742 / Intel Xeon Gold 6338" value={formData.cpu} onChange={e => set('cpu', e.target.value)} required />
+              <Input id="cpu" placeholder="e.g., Cobalt 200 / Xeon Gold 6338" value={formData.cpu} onChange={e => set('cpu', e.target.value)} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="memory">Memory *</Label>
@@ -99,7 +115,7 @@ export function AddServerDialog({ open, onOpenChange, onServerAdd }: AddServerDi
             </div>
             <div className="space-y-2 col-span-2">
               <Label htmlFor="location">Location *</Label>
-              <Input id="location" placeholder="e.g., Building A, Room 101" value={formData.location} onChange={e => set('location', e.target.value)} required />
+              <Input id="location" placeholder="e.g., SCHIE/B50 Lab" value={formData.location} onChange={e => set('location', e.target.value)} required />
             </div>
             <div className="space-y-2 col-span-2">
               <Label htmlFor="status">Initial Status</Label>
@@ -111,6 +127,37 @@ export function AddServerDialog({ open, onOpenChange, onServerAdd }: AddServerDi
                   <SelectItem value="offline">Offline</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+
+          {/* Infrastructure Details */}
+          <div className="border-t pt-4">
+            <p className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">Infrastructure Details (Optional)</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="rscm-ip">RScm IP</Label>
+                <Input id="rscm-ip" placeholder="e.g., 172.29.94.21" value={formData.rscmIp} onChange={e => set('rscmIp', e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="slot-id">Slot ID</Label>
+                <Input id="slot-id" type="number" placeholder="e.g., 2" value={formData.slotId} onChange={e => set('slotId', e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="fw-version">FW Version</Label>
+                <Input id="fw-version" placeholder="e.g., 1.2.3" value={formData.fwVersion} onChange={e => set('fwVersion', e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="test-harness">Test Harness</Label>
+                <Input id="test-harness" placeholder="e.g., WTT" value={formData.testHarness} onChange={e => set('testHarness', e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ds-pool">DS</Label>
+                <Input id="ds-pool" placeholder="e.g., WDGExecutionDS02" value={formData.dsPool} onChange={e => set('dsPool', e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="pool">Pool</Label>
+                <Input id="pool" placeholder="e.g., $\Teams\Core\Base\..." value={formData.pool} onChange={e => set('pool', e.target.value)} />
+              </div>
             </div>
           </div>
 

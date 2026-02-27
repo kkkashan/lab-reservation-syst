@@ -31,7 +31,7 @@ services:
       NODE_ENV: production
       PORT: 3001
       DATABASE_URL: postgresql://${DB_USER:-labuser}:${DB_PASSWORD:-labpassword}@database:5432/${DB_NAME:-lab_booking}
-      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-min-32-chars}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-min-32-chars-long-secret}
       FRONTEND_URL: http://localhost:${FRONTEND_PORT:-80}
       LOG_LEVEL: info
     ports:
@@ -41,8 +41,6 @@ services:
         condition: service_healthy
     networks:
       - lab-booking-network
-    command: >
-      sh -c "npx prisma migrate deploy && node dist/server.js"
 
   frontend:
     build:
@@ -50,6 +48,8 @@ services:
       dockerfile: Dockerfile
     container_name: lab-booking-frontend
     restart: unless-stopped
+    environment:
+      BACKEND_URL: http://backend:3001
     ports:
       - "${FRONTEND_PORT:-80}:80"
     depends_on:

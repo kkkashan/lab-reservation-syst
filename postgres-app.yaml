@@ -1,0 +1,36 @@
+name: lab-booking-postgres
+location: eastus2
+type: Microsoft.App/containerApps
+properties:
+  environmentId: /subscriptions/e8163038-eb55-4108-b164-1d0563f63588/resourceGroups/rg-lab-booking/providers/Microsoft.App/managedEnvironments/lab-booking-env
+  configuration:
+    ingress:
+      external: false
+      targetPort: 5432
+      transport: tcp
+    activeRevisionsMode: Single
+  template:
+    containers:
+    - name: postgres
+      image: postgres:16-alpine
+      resources:
+        cpu: 0.5
+        memory: 1Gi
+      env:
+      - name: POSTGRES_DB
+        value: lab_booking
+      - name: POSTGRES_USER
+        value: labadmin
+      - name: POSTGRES_PASSWORD
+        value: LabB00king2026Strong
+      - name: PGDATA
+        value: /var/lib/postgresql/data/pgdata
+      volumeMounts:
+      - volumeName: pgdata
+        mountPath: /var/lib/postgresql/data
+    scale:
+      minReplicas: 1
+      maxReplicas: 1
+    volumes:
+    - name: pgdata
+      storageType: EmptyDir

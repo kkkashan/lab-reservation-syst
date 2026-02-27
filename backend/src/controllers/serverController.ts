@@ -13,9 +13,7 @@ export const getAllServers = async (req: Request, res: Response, next: NextFunct
             endDate: { gte: new Date() },
           },
           include: {
-            user: {
-              select: { id: true, name: true, email: true },
-            },
+            user: { select: { id: true, name: true, email: true } },
           },
         },
       },
@@ -32,6 +30,12 @@ export const getAllServers = async (req: Request, res: Response, next: NextFunct
       },
       status: server.status,
       location: server.location,
+      rscmIp: server.rscmIp,
+      slotId: server.slotId,
+      fwVersion: server.fwVersion,
+      dsPool: server.dsPool,
+      testHarness: server.testHarness,
+      pool: server.pool,
       currentBooking: server.bookings[0] || null,
     }));
 
@@ -48,18 +52,12 @@ export const getServerById = async (req: Request, res: Response, next: NextFunct
       where: { id },
       include: {
         bookings: {
-          include: {
-            user: {
-              select: { id: true, name: true, email: true },
-            },
-          },
+          include: { user: { select: { id: true, name: true, email: true } } },
         },
       },
     });
 
-    if (!server) {
-      throw new AppError(404, 'Server not found');
-    }
+    if (!server) throw new AppError(404, 'Server not found');
 
     res.json({ status: 'success', data: server });
   } catch (error) {
@@ -69,7 +67,7 @@ export const getServerById = async (req: Request, res: Response, next: NextFunct
 
 export const createServer = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, specifications, location, status } = req.body;
+    const { name, specifications, location, status, rscmIp, slotId, fwVersion, dsPool, testHarness, pool } = req.body;
 
     const server = await prisma.server.create({
       data: {
@@ -77,9 +75,15 @@ export const createServer = async (req: Request, res: Response, next: NextFuncti
         cpuSpec: specifications.cpu,
         memorySpec: specifications.memory,
         storageSpec: specifications.storage,
-        gpuSpec: specifications.gpu,
+        gpuSpec: specifications.gpu ?? null,
         location,
         status: status || 'available',
+        rscmIp: rscmIp || null,
+        slotId: slotId != null ? Number(slotId) : null,
+        fwVersion: fwVersion || null,
+        dsPool: dsPool || null,
+        testHarness: testHarness || null,
+        pool: pool || null,
       },
     });
 
@@ -92,7 +96,7 @@ export const createServer = async (req: Request, res: Response, next: NextFuncti
 export const updateServer = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = req.params.id as string;
-    const { name, specifications, status, location } = req.body;
+    const { name, specifications, status, location, rscmIp, slotId, fwVersion, dsPool, testHarness, pool } = req.body;
 
     const server = await prisma.server.update({
       where: { id },
@@ -104,6 +108,12 @@ export const updateServer = async (req: Request, res: Response, next: NextFuncti
         ...(specifications?.gpu !== undefined && { gpuSpec: specifications.gpu }),
         ...(status && { status }),
         ...(location && { location }),
+        ...(rscmIp !== undefined && { rscmIp: rscmIp || null }),
+        ...(slotId !== undefined && { slotId: slotId != null ? Number(slotId) : null }),
+        ...(fwVersion !== undefined && { fwVersion: fwVersion || null }),
+        ...(dsPool !== undefined && { dsPool: dsPool || null }),
+        ...(testHarness !== undefined && { testHarness: testHarness || null }),
+        ...(pool !== undefined && { pool: pool || null }),
       },
     });
 
@@ -116,11 +126,7 @@ export const updateServer = async (req: Request, res: Response, next: NextFuncti
 export const deleteServer = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = req.params.id as string;
-
-    await prisma.server.delete({
-      where: { id },
-    });
-
+    await prisma.server.delete({ where: { id } });
     res.json({ status: 'success', message: 'Server deleted successfully' });
   } catch (error) {
     next(error);

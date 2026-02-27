@@ -5,10 +5,16 @@ export interface Server {
     cpu: string;
     memory: string;
     storage: string;
-    gpu?: string;
+    gpu?: string | null;
   };
   status: 'available' | 'booked' | 'maintenance' | 'offline';
   location: string;
+  rscmIp?: string | null;
+  slotId?: number | null;
+  fwVersion?: string | null;
+  dsPool?: string | null;
+  testHarness?: string | null;
+  pool?: string | null;
   currentBooking?: Booking;
 }
 
@@ -26,6 +32,7 @@ export interface Booking {
   createdAt: string;
   renewalNotificationSent?: boolean;
   daysBooked: number;
+  teamAssigned?: string | null;
 }
 
 export interface User {

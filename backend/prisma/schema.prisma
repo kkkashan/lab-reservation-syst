@@ -44,6 +44,12 @@ model Server {
   gpuSpec     String?      @map("gpu_spec")
   status      ServerStatus @default(available)
   location    String
+  rscmIp      String?      @map("rscm_ip")
+  slotId      Int?         @map("slot_id")
+  fwVersion   String?      @map("fw_version")
+  dsPool      String?      @map("ds_pool")
+  testHarness String?      @map("test_harness")
+  pool        String?
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt      @map("updated_at")
   bookings    Booking[]
@@ -63,6 +69,7 @@ model Booking {
   status                  BookingStatus @default(active)
   renewalNotificationSent Boolean       @default(false) @map("renewal_notification_sent")
   daysBooked              Int           @map("days_booked")
+  teamAssigned            String?       @map("team_assigned")
   createdAt               DateTime      @default(now()) @map("created_at")
   updatedAt               DateTime      @updatedAt      @map("updated_at")
 

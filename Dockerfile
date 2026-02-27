@@ -21,15 +21,22 @@ FROM nginx:alpine
 # Copy built files from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx template (uses envsubst for BACKEND_URL)
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
 # Expose port
 EXPOSE 80
 
+# BACKEND_URL env var — set at deploy time in Azure Container Apps
+# For docker-compose, defaults to http://backend:3001
+ENV BACKEND_URL=http://backend:3001
+
+# Only substitute BACKEND_URL — leave nginx variables ($host, $uri, etc.) alone
+ENV NGINX_ENVSUBST_FILTER=BACKEND_URL
+
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
-  CMD wget --quiet --tries=1 --spider http://localhost:80/ || exit 1
+  CMD wget --quiet --tries=1 --spider http://localhost:80/health || exit 1
 
-# Start nginx
+# nginx:alpine auto-processes /etc/nginx/templates/*.template at startup
 CMD ["nginx", "-g", "daemon off;"]
