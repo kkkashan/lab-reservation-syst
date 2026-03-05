@@ -121,7 +121,7 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
         {(['all', 'arm64', 'intel', 'amd'] as Arch[]).map(a => (
           <button key={a} onClick={() => { setArchFilter(a); setGenFilter('all'); }}
             className={`px-3 py-1 rounded text-sm font-medium border transition-colors ${
-              archFilter === a ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+              archFilter === a ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : 'bg-card text-muted-foreground border-border hover:bg-accent'
             }`}
           >
             {a === 'all' ? 'All' : a.toUpperCase()}
@@ -134,13 +134,13 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
         <div className="flex flex-wrap items-center gap-2">
           <button onClick={() => setGenFilter('all')}
             className={`px-3 py-1 rounded text-xs font-medium border transition-colors ${
-              genFilter === 'all' ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+              genFilter === 'all' ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : 'bg-card text-muted-foreground border-border hover:bg-accent'
             }`}
           >All Gens</button>
           {availableGens.map(g => (
             <button key={g} onClick={() => setGenFilter(g)}
               className={`px-3 py-1 rounded text-xs font-medium border transition-colors ${
-                genFilter === g ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+                genFilter === g ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : 'bg-card text-muted-foreground border-border hover:bg-accent'
               }`}
             >{g}</button>
           ))}
@@ -150,13 +150,13 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
       {/* Title Row */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Executive Dashboard</h1>
-          <p className="text-sm text-gray-500">LabOps Sentinel • Real-time infrastructure overview</p>
+          <h1 className="text-2xl font-bold text-foreground">Executive Dashboard</h1>
+          <p className="text-sm text-muted-foreground">LabOps Sentinel • Real-time infrastructure overview</p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-gray-500">
-          <span className="flex items-center gap-1 px-2 py-1 border rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-green-500" /> Live</span>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1 px-2 py-1 border border-border rounded-full"><span className="w-1.5 h-1.5 rounded-full bg-green-500" /> Live</span>
           <span>Updated: {now.toLocaleTimeString()}</span>
-          <button className="p-1 hover:bg-gray-100 rounded" onClick={() => window.location.reload()}>
+          <button className="p-1 hover:bg-accent rounded" onClick={() => window.location.reload()}>
             <ArrowsClockwise size={14} />
           </button>
         </div>
@@ -168,11 +168,11 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
           <CardContent className="pt-5 pb-4 px-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-500 font-medium">Total Servers</p>
+                <p className="text-xs text-muted-foreground font-medium">Total Servers</p>
                 <p className="text-3xl font-bold mt-1">{stats.total}</p>
-                <p className="text-xs text-gray-400 mt-0.5">⚡ Active fleet</p>
+                <p className="text-xs text-muted-foreground mt-0.5">⚡ Active fleet</p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
                 <Database size={20} className="text-blue-600" />
               </div>
             </div>
@@ -183,29 +183,29 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
           <CardContent className="pt-5 pb-4 px-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-500 font-medium">Utilization</p>
+                <p className="text-xs text-muted-foreground font-medium">Utilization</p>
                 <p className="text-3xl font-bold mt-1">{stats.utilization}%</p>
-                <div className="w-24 h-1.5 bg-gray-200 rounded-full mt-2">
+                <div className="w-24 h-1.5 bg-muted rounded-full mt-2">
                   <div className="h-full bg-blue-600 rounded-full" style={{ width: `${stats.utilization}%` }} />
                 </div>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center">
                 <TrendUp size={20} className="text-indigo-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className={`border shadow-sm ${stats.overdue > 0 ? 'border-red-200 bg-red-50/30' : ''}`}>
+        <Card className={`border shadow-sm ${stats.overdue > 0 ? 'border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-950/20' : ''}`}>
           <CardContent className="pt-5 pb-4 px-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-500 font-medium">Overdue</p>
+                <p className="text-xs text-muted-foreground font-medium">Overdue</p>
                 <p className={`text-3xl font-bold mt-1 ${stats.overdue > 0 ? 'text-red-600' : ''}`}>{stats.overdue}</p>
                 {stats.overdue > 0 && <p className="text-xs text-red-500 mt-0.5 flex items-center gap-1"><Warning size={10} /> Action required</p>}
               </div>
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${stats.overdue > 0 ? 'bg-red-100' : 'bg-gray-50'}`}>
-                <Warning size={20} className={stats.overdue > 0 ? 'text-red-600' : 'text-gray-400'} />
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${stats.overdue > 0 ? 'bg-red-500/10' : 'bg-muted'}`}>
+                <Warning size={20} className={stats.overdue > 0 ? 'text-red-600' : 'text-muted-foreground'} />
               </div>
             </div>
           </CardContent>
@@ -215,11 +215,11 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
           <CardContent className="pt-5 pb-4 px-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-gray-500 font-medium">Pending Reviews</p>
+                <p className="text-xs text-muted-foreground font-medium">Pending Reviews</p>
                 <p className="text-3xl font-bold mt-1">{bookings.filter(b => b.status === 'pending-renewal').length}</p>
-                <p className="text-xs text-gray-400 mt-0.5">📋 Extension requests</p>
+                <p className="text-xs text-muted-foreground mt-0.5">📋 Extension requests</p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
                 <CalendarBlank size={20} className="text-amber-600" />
               </div>
             </div>
@@ -244,13 +244,13 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-2xl font-bold">{stats.utilization}%</span>
-                <span className="text-[10px] text-gray-400">Utilization</span>
+                <span className="text-[10px] text-muted-foreground">Utilization</span>
               </div>
             </div>
             <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-green-500" /> <span className="font-semibold">{stats.available}</span> <span className="text-gray-500">Available</span></div>
-              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-blue-500" /> <span className="font-semibold">{stats.reserved}</span> <span className="text-gray-500">Reserved</span></div>
-              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-red-500" /> <span className="font-semibold">{stats.overdue}</span> <span className="text-gray-500">Overdue</span></div>
+              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-green-500" /> <span className="font-semibold">{stats.available}</span> <span className="text-muted-foreground">Available</span></div>
+              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-blue-500" /> <span className="font-semibold">{stats.reserved}</span> <span className="text-muted-foreground">Reserved</span></div>
+              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-red-500" /> <span className="font-semibold">{stats.overdue}</span> <span className="text-muted-foreground">Overdue</span></div>
             </div>
           </CardContent>
         </Card>
@@ -262,10 +262,10 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
           <CardContent>
             <ResponsiveContainer width="100%" height={160}>
               <BarChart data={activityData} barSize={40}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#999' }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#999' }} allowDecimals={false} />
-                <Tooltip />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} className="fill-muted-foreground" allowDecimals={false} />
+                <Tooltip contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '0.5rem', color: 'var(--foreground)' }} />
                 <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -277,11 +277,11 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="border shadow-sm">
           <CardContent className="flex items-center gap-4 py-5 px-5">
-            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-              <Clock size={24} className="text-gray-600" />
+            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+              <Clock size={24} className="text-muted-foreground" />
             </div>
             <div>
-              <p className="text-xs text-gray-500">Avg Booking Duration</p>
+              <p className="text-xs text-muted-foreground">Avg Booking Duration</p>
               <p className="text-2xl font-bold">{stats.avgDuration} days</p>
             </div>
           </CardContent>
@@ -289,26 +289,26 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
 
         <Card className="border shadow-sm">
           <CardContent className="flex items-center gap-4 py-5 px-5">
-            <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center">
               <Warning size={24} className="text-amber-600" />
             </div>
             <div>
-              <p className="text-xs text-gray-500">Ending in 48h</p>
+              <p className="text-xs text-muted-foreground">Ending in 48h</p>
               <p className="text-2xl font-bold">{stats.endingSoon.length}</p>
-              <p className="text-xs text-gray-400">Bookings expiring soon</p>
+              <p className="text-xs text-muted-foreground">Bookings expiring soon</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="border shadow-sm">
           <CardContent className="flex items-center gap-4 py-5 px-5">
-            <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-teal-500/10 flex items-center justify-center">
               <TrendUp size={24} className="text-teal-600" />
             </div>
             <div>
-              <p className="text-xs text-gray-500">Active Bookings</p>
+              <p className="text-xs text-muted-foreground">Active Bookings</p>
               <p className="text-2xl font-bold">{stats.activeBookings.length}</p>
-              <p className="text-xs text-gray-400">Current reservations</p>
+              <p className="text-xs text-muted-foreground">Current reservations</p>
             </div>
           </CardContent>
         </Card>
@@ -316,19 +316,19 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
 
       {/* Overdue Servers Alert */}
       {stats.overdueList.length > 0 && (
-        <Card className="border border-red-200 shadow-sm">
+        <Card className="border border-red-200 dark:border-red-800 shadow-sm">
           <CardContent className="pt-5 px-5 pb-4">
             <h3 className="text-sm font-semibold text-red-600 flex items-center gap-2 mb-3">
               <Warning size={16} /> Overdue Servers ({stats.overdueList.length})
             </h3>
             <div className="space-y-2">
               {stats.overdueList.map(({ server, booking, daysOverdue }) => (
-                <div key={server.id} className="flex items-center justify-between py-2 px-3 bg-red-50/50 rounded-lg">
+                <div key={server.id} className="flex items-center justify-between py-2 px-3 bg-red-50/50 dark:bg-red-950/20 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Database size={16} className="text-gray-500" />
+                    <Database size={16} className="text-muted-foreground" />
                     <div>
                       <p className="font-medium text-sm">{server.name}</p>
-                      <p className="text-xs text-gray-500">{booking.userName} • Ended {formatDate(booking.endDate)}</p>
+                      <p className="text-xs text-muted-foreground">{booking.userName} • Ended {formatDate(booking.endDate)}</p>
                     </div>
                   </div>
                   <Badge className="bg-red-500 text-white text-xs">{daysOverdue}d overdue</Badge>
@@ -339,7 +339,7 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
         </Card>
       )}
 
-      {/* ═══ Server Allocation Table ═══ */}
+      {/* Server Allocation Table */}
       <Card className="border shadow-sm">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
@@ -353,7 +353,7 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-gray-50/80">
+                <TableRow className="bg-muted/50">
                   <TableHead className="whitespace-nowrap text-xs font-semibold">Team Assigned</TableHead>
                   <TableHead className="whitespace-nowrap text-xs font-semibold">User</TableHead>
                   <TableHead className="whitespace-nowrap text-xs font-semibold">Server</TableHead>
@@ -371,7 +371,7 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
               <TableBody>
                 {stats.activeBookings.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={12} className="text-center py-8 text-gray-400 text-sm">
+                    <TableCell colSpan={12} className="text-center py-8 text-muted-foreground text-sm">
                       No active bookings — all servers are available
                     </TableCell>
                   </TableRow>
@@ -380,42 +380,42 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
                     const srv = servers.find(s => s.id === booking.serverId);
                     const isOverdue = new Date(booking.endDate) < now;
                     return (
-                      <TableRow key={booking.id} className={`text-sm ${isOverdue ? 'bg-red-50/40' : 'hover:bg-gray-50/60'}`}>
+                      <TableRow key={booking.id} className={`text-sm ${isOverdue ? 'bg-red-50/40 dark:bg-red-950/10' : 'hover:bg-muted/50'}`}>
                         <TableCell className="font-medium whitespace-nowrap">
-                          {booking.teamAssigned || <span className="text-gray-300">—</span>}
+                          {booking.teamAssigned || <span className="text-muted-foreground/40">—</span>}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">{booking.userName}</TableCell>
                         <TableCell className="font-mono text-xs whitespace-nowrap">{booking.serverName}</TableCell>
                         <TableCell>
                           <Badge className={`text-xs ${
                             isOverdue
-                              ? 'bg-red-100 text-red-700 border-red-200'
-                              : 'bg-blue-100 text-blue-700 border-blue-200'
+                              ? 'bg-red-100 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-800'
+                              : 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800'
                           }`}>
                             {isOverdue ? 'Overdue' : 'In Use'}
                           </Badge>
                         </TableCell>
-                        <TableCell className="whitespace-nowrap text-xs text-gray-600">
+                        <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
                           {formatDate(booking.startDate)}
                         </TableCell>
                         <TableCell className="text-center">{booking.daysBooked}</TableCell>
-                        <TableCell className="whitespace-nowrap text-xs text-gray-600">
-                          {srv?.testHarness || <span className="text-gray-300">TBD</span>}
+                        <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                          {srv?.testHarness || <span className="text-muted-foreground/40">TBD</span>}
                         </TableCell>
-                        <TableCell className="font-mono text-xs whitespace-nowrap text-gray-600">
-                          {srv?.rscmIp || <span className="text-gray-300">—</span>}
+                        <TableCell className="font-mono text-xs whitespace-nowrap text-muted-foreground">
+                          {srv?.rscmIp || <span className="text-muted-foreground/40">—</span>}
                         </TableCell>
-                        <TableCell className="text-center text-xs text-gray-600">
-                          {srv?.slotId != null ? srv.slotId : <span className="text-gray-300">—</span>}
+                        <TableCell className="text-center text-xs text-muted-foreground">
+                          {srv?.slotId != null ? srv.slotId : <span className="text-muted-foreground/40">—</span>}
                         </TableCell>
-                        <TableCell className="text-xs whitespace-nowrap text-gray-600">
-                          {srv?.fwVersion || <span className="text-gray-300">—</span>}
+                        <TableCell className="text-xs whitespace-nowrap text-muted-foreground">
+                          {srv?.fwVersion || <span className="text-muted-foreground/40">—</span>}
                         </TableCell>
-                        <TableCell className="text-xs whitespace-nowrap text-gray-600">
-                          {srv?.dsPool || <span className="text-gray-300">—</span>}
+                        <TableCell className="text-xs whitespace-nowrap text-muted-foreground">
+                          {srv?.dsPool || <span className="text-muted-foreground/40">—</span>}
                         </TableCell>
-                        <TableCell className="text-xs whitespace-nowrap text-gray-600 max-w-[200px] truncate" title={srv?.pool || ''}>
-                          {srv?.pool || <span className="text-gray-300">—</span>}
+                        <TableCell className="text-xs whitespace-nowrap text-muted-foreground max-w-[200px] truncate" title={srv?.pool || ''}>
+                          {srv?.pool || <span className="text-muted-foreground/40">—</span>}
                         </TableCell>
                       </TableRow>
                     );
@@ -430,7 +430,7 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
       {/* Server Grid */}
       {filtered.length > 0 && (
         <>
-          <h2 className="text-lg font-semibold text-gray-800">
+          <h2 className="text-lg font-semibold text-foreground">
             Servers {archFilter !== 'all' ? `(${archFilter.toUpperCase()})` : ''} — {filtered.length}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">

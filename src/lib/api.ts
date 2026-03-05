@@ -174,3 +174,53 @@ export const adminApi = {
   sendWeeklyDigest: () => request<{ sent: number; skipped: number; errors: number }>('/admin/send-weekly-digest', { method: 'POST' }),
   sendTestEmail: () => request<{ message: string }>('/admin/send-test-email', { method: 'POST' }),
 };
+
+// ── Admin Excel Upload/Export ─────────────────────────────────────
+export interface UploadResult {
+  serversCreated: number;
+  serversUpdated: number;
+  bookingsCreated: number;
+  bookingsUpdated: number;
+  rowsSkipped: number;
+  totalRows: number;
+  errors?: string[];
+}
+
+export const uploadApi = {
+  uploadExcel: async (file: File): Promise<UploadResult> => {
+    const token = getToken();
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch(`${API_BASE}/admin/upload-excel`, {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: formData,
+    });
+
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.message || `HTTP ${res.status}`);
+    return (json.data ?? json) as UploadResult;
+  },
+
+  exportExcelUrl: (): string => `${API_BASE}/admin/export-excel`,
+
+  downloadExcel: async (): Promise<void> => {
+    const token = getToken();
+    const res = await fetch(`${API_BASE}/admin/export-excel`, {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+    if (!res.ok) throw new Error('Failed to download');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'server-allocations.xlsx';
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+};
