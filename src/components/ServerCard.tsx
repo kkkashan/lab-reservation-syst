@@ -21,30 +21,25 @@ export function ServerCard({ server, bookings, onBook, onViewDetails }: ServerCa
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'available':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800';
       case 'booked':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-800';
       case 'maintenance':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800';
       case 'offline':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'available':
-        return 'Available';
-      case 'booked':
-        return 'Booked';
-      case 'maintenance':
-        return 'Maintenance';
-      case 'offline':
-        return 'Offline';
-      default:
-        return 'Unknown';
+      case 'available': return 'Available';
+      case 'booked': return 'Booked';
+      case 'maintenance': return 'Maintenance';
+      case 'offline': return 'Offline';
+      default: return 'Unknown';
     }
   };
 
@@ -93,34 +88,24 @@ export function ServerCard({ server, bookings, onBook, onViewDetails }: ServerCa
         </div>
 
         {activeBooking && (
-          <div className="bg-blue-50 p-3 rounded-md border border-blue-200">
+          <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-md border border-blue-200 dark:border-blue-800">
             <div className="flex items-center gap-2 text-sm">
-              <Calendar size={16} className="text-blue-600" />
-              <span className="text-blue-800 font-medium">
+              <Calendar size={16} className="text-blue-600 dark:text-blue-400" />
+              <span className="text-blue-800 dark:text-blue-300 font-medium">
                 Booked by {activeBooking.userName}
               </span>
             </div>
-            <div className="text-xs text-blue-600 mt-1">
+            <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
               Until {new Date(activeBooking.endDate).toLocaleDateString()}
             </div>
           </div>
         )}
 
         <div className="flex gap-2 pt-2">
-          <Button
-            onClick={() => onViewDetails(server)}
-            variant="outline"
-            size="sm"
-            className="flex-1"
-          >
+          <Button onClick={() => onViewDetails(server)} variant="outline" size="sm" className="flex-1">
             View Details
           </Button>
-          <Button
-            onClick={() => onBook(server)}
-            disabled={status !== 'available'}
-            size="sm"
-            className="flex-1"
-          >
+          <Button onClick={() => onBook(server)} disabled={status !== 'available'} size="sm" className="flex-1">
             {status === 'available' ? 'Book Server' : 'Unavailable'}
           </Button>
         </div>

@@ -89,15 +89,15 @@ export function UserManagement() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">User Management</h1>
         <p className="text-muted-foreground mt-1">Manage user accounts and permissions</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Total Users</CardTitle><Users size={16} className="text-muted-foreground" /></CardHeader><CardContent><div className="text-2xl font-bold">{users.length}</div></CardContent></Card>
-        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Admins</CardTitle><ShieldCheck size={16} className="text-muted-foreground" /></CardHeader><CardContent><div className="text-2xl font-bold text-blue-600">{adminCount}</div></CardContent></Card>
-        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Regular Users</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-green-600">{users.length - adminCount}</div></CardContent></Card>
+        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Total Users</CardTitle><Users size={16} className="text-muted-foreground" /></CardHeader><CardContent><div className="text-2xl font-bold text-foreground">{users.length}</div></CardContent></Card>
+        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Admins</CardTitle><ShieldCheck size={16} className="text-muted-foreground" /></CardHeader><CardContent><div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{adminCount}</div></CardContent></Card>
+        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Regular Users</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-green-600 dark:text-green-400">{users.length - adminCount}</div></CardContent></Card>
       </div>
 
       {/* Search + Add */}

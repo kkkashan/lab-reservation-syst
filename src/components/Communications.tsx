@@ -26,10 +26,10 @@ const TEMPLATES: { label: string; subject: string; message: string; type: NotifT
 ];
 
 const typeColors: Record<NotifType, string> = {
-  Update: 'bg-blue-100 text-blue-700',
-  Approved: 'bg-green-100 text-green-700',
-  Overdue: 'bg-red-100 text-red-700',
-  Custom: 'bg-gray-100 text-gray-700',
+  Update:   'bg-blue-100 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400',
+  Approved: 'bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400',
+  Overdue:  'bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400',
+  Custom:   'bg-muted text-muted-foreground',
 };
 
 export function Communications() {
@@ -56,15 +56,12 @@ export function Communications() {
     if (!recipient || !subject || !message) { toast.error('Fill in all required fields'); return; }
     setSending(true);
     try {
-      // Try real email via backend test endpoint
       await adminApi.sendTestEmail();
       const notif: SentNotif = {
         id: Date.now().toString(),
         type: TEMPLATES.find(t => t.label === template)?.type || 'Custom',
-        recipient,
-        subject: subject.replace('{server}', serverId || ''),
-        status: 'Sent',
-        sentAt: new Date().toISOString(),
+        recipient, subject: subject.replace('{server}', serverId || ''),
+        status: 'Sent', sentAt: new Date().toISOString(),
       };
       setSent(prev => [notif, ...prev]);
       toast.success(`Notification sent to ${recipient}`);
@@ -73,10 +70,8 @@ export function Communications() {
       const notif: SentNotif = {
         id: Date.now().toString(),
         type: TEMPLATES.find(t => t.label === template)?.type || 'Custom',
-        recipient,
-        subject,
-        status: 'Sent',
-        sentAt: new Date().toISOString(),
+        recipient, subject,
+        status: 'Sent', sentAt: new Date().toISOString(),
       };
       setSent(prev => [notif, ...prev]);
       toast.success(`Notification logged for ${recipient}`);
@@ -93,8 +88,8 @@ export function Communications() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Communications</h1>
-        <p className="text-sm text-gray-500">Manage booking notifications and send communications</p>
+        <h1 className="text-2xl font-bold text-foreground">Communications</h1>
+        <p className="text-sm text-muted-foreground">Manage booking notifications and send communications</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -105,7 +100,7 @@ export function Communications() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1">
-              <Label className="text-xs text-gray-500">Template (Optional)</Label>
+              <Label className="text-xs text-muted-foreground">Template (Optional)</Label>
               <Select value={template} onValueChange={handleTemplateChange}>
                 <SelectTrigger><SelectValue placeholder="Select a template..." /></SelectTrigger>
                 <SelectContent>
@@ -115,32 +110,32 @@ export function Communications() {
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs text-gray-500">Recipient *</Label>
+              <Label className="text-xs text-muted-foreground">Recipient *</Label>
               <Input value={recipient} onChange={e => setRecipient(e.target.value)} placeholder="user@example.com" type="email" required />
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs text-gray-500">Server ID (Optional)</Label>
+              <Label className="text-xs text-muted-foreground">Server ID (Optional)</Label>
               <Input value={serverId} onChange={e => setServerId(e.target.value)} placeholder="e.g., LabServer-A" />
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs text-gray-500">Subject *</Label>
+              <Label className="text-xs text-muted-foreground">Subject *</Label>
               <Input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Notification subject" required />
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs text-gray-500">Message *</Label>
+              <Label className="text-xs text-muted-foreground">Message *</Label>
               <textarea
                 value={message}
                 onChange={e => setMessage(e.target.value)}
                 placeholder="Enter your message..."
-                className="w-full min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground resize-y focus:outline-none focus:ring-2 focus:ring-ring"
                 required
               />
             </div>
 
-            <Button onClick={handleSend} disabled={sending} className="w-full bg-[#1e3a5f] hover:bg-[#16304f]">
+            <Button onClick={handleSend} disabled={sending} className="w-full">
               {sending ? 'Sending…' : '✈ Send Notification'}
             </Button>
           </CardContent>
@@ -153,7 +148,7 @@ export function Communications() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center gap-3">
-              <span className="text-gray-400">🔽</span>
+              <span className="text-muted-foreground">🔽</span>
               <Select value={filterType} onValueChange={setFilterType}>
                 <SelectTrigger className="w-28 h-8 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -165,11 +160,11 @@ export function Communications() {
                 </SelectContent>
               </Select>
               <Input value={searchRecipient} onChange={e => setSearchRecipient(e.target.value)} placeholder="Search recipient..." className="h-8 text-xs flex-1" />
-              <span className="text-xs text-gray-400 whitespace-nowrap">Newest first</span>
+              <span className="text-xs text-muted-foreground whitespace-nowrap">Newest first</span>
             </div>
 
             {filteredSent.length === 0 ? (
-              <div className="text-center py-12 text-gray-400 text-sm">
+              <div className="text-center py-12 text-muted-foreground text-sm">
                 <p className="text-3xl mb-2">📬</p>
                 <p>No notifications sent yet.</p>
                 <p className="text-xs">Use the form to send your first notification.</p>

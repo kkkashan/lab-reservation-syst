@@ -121,7 +121,7 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
         {(['all', 'arm64', 'intel', 'amd'] as Arch[]).map(a => (
           <button key={a} onClick={() => { setArchFilter(a); setGenFilter('all'); }}
             className={`px-3 py-1 rounded text-sm font-medium border transition-colors ${
-              archFilter === a ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : 'bg-card text-muted-foreground border-border hover:bg-accent'
+              archFilter === a ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border hover:bg-accent'
             }`}
           >
             {a === 'all' ? 'All' : a.toUpperCase()}
@@ -134,13 +134,13 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
         <div className="flex flex-wrap items-center gap-2">
           <button onClick={() => setGenFilter('all')}
             className={`px-3 py-1 rounded text-xs font-medium border transition-colors ${
-              genFilter === 'all' ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : 'bg-card text-muted-foreground border-border hover:bg-accent'
+              genFilter === 'all' ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border hover:bg-accent'
             }`}
           >All Gens</button>
           {availableGens.map(g => (
             <button key={g} onClick={() => setGenFilter(g)}
               className={`px-3 py-1 rounded text-xs font-medium border transition-colors ${
-                genFilter === g ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : 'bg-card text-muted-foreground border-border hover:bg-accent'
+                genFilter === g ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border hover:bg-accent'
               }`}
             >{g}</button>
           ))}
@@ -169,11 +169,11 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground font-medium">Total Servers</p>
-                <p className="text-3xl font-bold mt-1">{stats.total}</p>
+                <p className="text-3xl font-bold mt-1 text-foreground">{stats.total}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">⚡ Active fleet</p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <Database size={20} className="text-blue-600" />
+              <div className="w-10 h-10 rounded-lg bg-blue-500/10 dark:bg-blue-500/20 flex items-center justify-center">
+                <Database size={20} className="text-blue-600 dark:text-blue-400" />
               </div>
             </div>
           </CardContent>
@@ -184,13 +184,13 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground font-medium">Utilization</p>
-                <p className="text-3xl font-bold mt-1">{stats.utilization}%</p>
+                <p className="text-3xl font-bold mt-1 text-foreground">{stats.utilization}%</p>
                 <div className="w-24 h-1.5 bg-muted rounded-full mt-2">
-                  <div className="h-full bg-blue-600 rounded-full" style={{ width: `${stats.utilization}%` }} />
+                  <div className="h-full bg-blue-600 dark:bg-blue-500 rounded-full" style={{ width: `${stats.utilization}%` }} />
                 </div>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-                <TrendUp size={20} className="text-indigo-600" />
+              <div className="w-10 h-10 rounded-lg bg-indigo-500/10 dark:bg-indigo-500/20 flex items-center justify-center">
+                <TrendUp size={20} className="text-indigo-600 dark:text-indigo-400" />
               </div>
             </div>
           </CardContent>
@@ -201,11 +201,11 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground font-medium">Overdue</p>
-                <p className={`text-3xl font-bold mt-1 ${stats.overdue > 0 ? 'text-red-600' : ''}`}>{stats.overdue}</p>
-                {stats.overdue > 0 && <p className="text-xs text-red-500 mt-0.5 flex items-center gap-1"><Warning size={10} /> Action required</p>}
+                <p className={`text-3xl font-bold mt-1 ${stats.overdue > 0 ? 'text-red-600 dark:text-red-400' : 'text-foreground'}`}>{stats.overdue}</p>
+                {stats.overdue > 0 && <p className="text-xs text-red-500 dark:text-red-400 mt-0.5 flex items-center gap-1"><Warning size={10} /> Action required</p>}
               </div>
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${stats.overdue > 0 ? 'bg-red-500/10' : 'bg-muted'}`}>
-                <Warning size={20} className={stats.overdue > 0 ? 'text-red-600' : 'text-muted-foreground'} />
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${stats.overdue > 0 ? 'bg-red-500/10 dark:bg-red-500/20' : 'bg-muted'}`}>
+                <Warning size={20} className={stats.overdue > 0 ? 'text-red-600 dark:text-red-400' : 'text-muted-foreground'} />
               </div>
             </div>
           </CardContent>
@@ -216,11 +216,11 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground font-medium">Pending Reviews</p>
-                <p className="text-3xl font-bold mt-1">{bookings.filter(b => b.status === 'pending-renewal').length}</p>
+                <p className="text-3xl font-bold mt-1 text-foreground">{bookings.filter(b => b.status === 'pending-renewal').length}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">📋 Extension requests</p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                <CalendarBlank size={20} className="text-amber-600" />
+              <div className="w-10 h-10 rounded-lg bg-amber-500/10 dark:bg-amber-500/20 flex items-center justify-center">
+                <CalendarBlank size={20} className="text-amber-600 dark:text-amber-400" />
               </div>
             </div>
           </CardContent>
@@ -243,14 +243,14 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold">{stats.utilization}%</span>
+                <span className="text-2xl font-bold text-foreground">{stats.utilization}%</span>
                 <span className="text-[10px] text-muted-foreground">Utilization</span>
               </div>
             </div>
             <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-green-500" /> <span className="font-semibold">{stats.available}</span> <span className="text-muted-foreground">Available</span></div>
-              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-blue-500" /> <span className="font-semibold">{stats.reserved}</span> <span className="text-muted-foreground">Reserved</span></div>
-              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-red-500" /> <span className="font-semibold">{stats.overdue}</span> <span className="text-muted-foreground">Overdue</span></div>
+              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-green-500" /> <span className="font-semibold text-foreground">{stats.available}</span> <span className="text-muted-foreground">Available</span></div>
+              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-blue-500" /> <span className="font-semibold text-foreground">{stats.reserved}</span> <span className="text-muted-foreground">Reserved</span></div>
+              <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-red-500" /> <span className="font-semibold text-foreground">{stats.overdue}</span> <span className="text-muted-foreground">Overdue</span></div>
             </div>
           </CardContent>
         </Card>
@@ -282,19 +282,19 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Avg Booking Duration</p>
-              <p className="text-2xl font-bold">{stats.avgDuration} days</p>
+              <p className="text-2xl font-bold text-foreground">{stats.avgDuration} days</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="border shadow-sm">
           <CardContent className="flex items-center gap-4 py-5 px-5">
-            <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center">
-              <Warning size={24} className="text-amber-600" />
+            <div className="w-12 h-12 rounded-full bg-amber-500/10 dark:bg-amber-500/20 flex items-center justify-center">
+              <Warning size={24} className="text-amber-600 dark:text-amber-400" />
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Ending in 48h</p>
-              <p className="text-2xl font-bold">{stats.endingSoon.length}</p>
+              <p className="text-2xl font-bold text-foreground">{stats.endingSoon.length}</p>
               <p className="text-xs text-muted-foreground">Bookings expiring soon</p>
             </div>
           </CardContent>
@@ -302,12 +302,12 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
 
         <Card className="border shadow-sm">
           <CardContent className="flex items-center gap-4 py-5 px-5">
-            <div className="w-12 h-12 rounded-full bg-teal-500/10 flex items-center justify-center">
-              <TrendUp size={24} className="text-teal-600" />
+            <div className="w-12 h-12 rounded-full bg-teal-500/10 dark:bg-teal-500/20 flex items-center justify-center">
+              <TrendUp size={24} className="text-teal-600 dark:text-teal-400" />
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Active Bookings</p>
-              <p className="text-2xl font-bold">{stats.activeBookings.length}</p>
+              <p className="text-2xl font-bold text-foreground">{stats.activeBookings.length}</p>
               <p className="text-xs text-muted-foreground">Current reservations</p>
             </div>
           </CardContent>
@@ -318,7 +318,7 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
       {stats.overdueList.length > 0 && (
         <Card className="border border-red-200 dark:border-red-800 shadow-sm">
           <CardContent className="pt-5 px-5 pb-4">
-            <h3 className="text-sm font-semibold text-red-600 flex items-center gap-2 mb-3">
+            <h3 className="text-sm font-semibold text-red-600 dark:text-red-400 flex items-center gap-2 mb-3">
               <Warning size={16} /> Overdue Servers ({stats.overdueList.length})
             </h3>
             <div className="space-y-2">
@@ -327,7 +327,7 @@ export function Dashboard({ servers, bookings, currentUser, onBookingCreate }: D
                   <div className="flex items-center gap-3">
                     <Database size={16} className="text-muted-foreground" />
                     <div>
-                      <p className="font-medium text-sm">{server.name}</p>
+                      <p className="font-medium text-sm text-foreground">{server.name}</p>
                       <p className="text-xs text-muted-foreground">{booking.userName} • Ended {formatDate(booking.endDate)}</p>
                     </div>
                   </div>

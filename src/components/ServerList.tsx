@@ -1,14 +1,16 @@
 import { useState, useRef } from 'react';
 import * as XLSX from 'xlsx';
+import { useQueryClient } from '@tanstack/react-query';
 import { ServerData } from '@/lib/api';
 import { AddServerDialog } from './AddServerDialog';
+import { ExcelUploadDialog } from './ExcelUploadDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, UploadSimple, DownloadSimple, Trash, MagnifyingGlass, Desktop } from '@phosphor-icons/react';
+import { Plus, UploadSimple, DownloadSimple, Trash, MagnifyingGlass, Desktop, FileXls } from '@phosphor-icons/react';
 import { toast } from 'sonner';
 
 type ServerPayload = {
@@ -23,21 +25,24 @@ interface ServerListProps {
   onServerAdd:    (data: ServerPayload) => Promise<unknown>;
   onServerUpdate: (id: string, data: { status?: string }) => Promise<unknown>;
   onServerDelete: (id: string) => Promise<unknown>;
+  isAdmin?: boolean;
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  available:   'bg-green-100  text-green-800  border-green-200',
-  booked:      'bg-blue-100   text-blue-800   border-blue-200',
-  maintenance: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  offline:     'bg-red-100    text-red-800    border-red-200',
+  available:   'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800',
+  booked:      'bg-blue-100  dark:bg-blue-950/30  text-blue-800  dark:text-blue-400  border-blue-200  dark:border-blue-800',
+  maintenance: 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800',
+  offline:     'bg-red-100   dark:bg-red-950/30   text-red-800   dark:text-red-400   border-red-200   dark:border-red-800',
 };
 
-export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelete }: ServerListProps) {
+export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelete, isAdmin }: ServerListProps) {
   const [addOpen, setAddOpen]     = useState(false);
   const [search, setSearch]       = useState('');
   const [filterStatus, setFilter] = useState('all');
   const [importing, setImporting] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
 
   const filtered = servers.filter(s => {
     const matchName   = s.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -114,6 +119,11 @@ export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelet
     catch { toast.error('Failed to update status'); }
   };
 
+  const handleUploadSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['servers'] });
+    queryClient.invalidateQueries({ queryKey: ['bookings'] });
+  };
+
   const stats = {
     total:       servers.length,
     available:   servers.filter(s => s.status === 'available').length,
@@ -127,7 +137,7 @@ export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelet
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Server List</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Server List</h1>
           <p className="text-muted-foreground mt-1">{servers.length} server{servers.length !== 1 ? 's' : ''} registered</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -138,6 +148,12 @@ export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelet
             <UploadSimple size={16} /> {importing ? 'Importing…' : 'Import Excel'}
           </Button>
           <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleFileChange} />
+          {isAdmin && (
+            <Button variant="outline" size="sm" onClick={() => setUploadDialogOpen(true)} className="flex items-center gap-2">
+              <FileXls size={16} className="text-green-600 dark:text-green-400" />
+              <span className="text-xs">Upload to Server</span>
+            </Button>
+          )}
           <Button size="sm" onClick={() => setAddOpen(true)} className="flex items-center gap-2">
             <Plus size={16} /> Add Server
           </Button>
@@ -148,10 +164,10 @@ export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelet
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {([
           { label: 'Total',       value: stats.total,       color: 'text-foreground' },
-          { label: 'Available',   value: stats.available,   color: 'text-green-600'  },
-          { label: 'Booked',      value: stats.booked,      color: 'text-blue-600'   },
-          { label: 'Maintenance', value: stats.maintenance, color: 'text-yellow-600' },
-          { label: 'Offline',     value: stats.offline,     color: 'text-red-600'    },
+          { label: 'Available',   value: stats.available,   color: 'text-green-600 dark:text-green-400' },
+          { label: 'Booked',      value: stats.booked,      color: 'text-blue-600  dark:text-blue-400'  },
+          { label: 'Maintenance', value: stats.maintenance, color: 'text-yellow-600 dark:text-yellow-400' },
+          { label: 'Offline',     value: stats.offline,     color: 'text-red-600   dark:text-red-400'   },
         ] as const).map(stat => (
           <Card key={stat.label}>
             <CardHeader className="p-3 pb-1">
@@ -252,6 +268,14 @@ export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelet
       </p>
 
       <AddServerDialog open={addOpen} onOpenChange={setAddOpen} onServerAdd={onServerAdd} />
+
+      {isAdmin && (
+        <ExcelUploadDialog
+          open={uploadDialogOpen}
+          onOpenChange={setUploadDialogOpen}
+          onSuccess={handleUploadSuccess}
+        />
+      )}
     </div>
   );
 }

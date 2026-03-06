@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { useServers, useBookings, useCurrentUser } from '@/hooks/use-booking-data';
 import { LoginForm } from '@/components/LoginForm';
 import { Navigation } from '@/components/Navigation';
@@ -10,7 +9,6 @@ import { ServerList } from '@/components/ServerList';
 import { UserManagement } from '@/components/UserManagement';
 import { Communications } from '@/components/Communications';
 import { Reports } from '@/components/Reports';
-import { ExcelUploadDialog } from '@/components/ExcelUploadDialog';
 import { Toaster } from '@/components/ui/sonner';
 
 function App() {
@@ -18,8 +16,6 @@ function App() {
   const { servers, addServer, updateServer, deleteServer } = useServers();
   const { bookings, createBooking, extendBooking, cancelBooking } = useBookings();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
-  const queryClient = useQueryClient();
 
   // Dark mode state - persisted in localStorage
   const [darkMode, setDarkMode] = useState(() => {
@@ -41,14 +37,9 @@ function App() {
 
   const toggleDarkMode = () => setDarkMode(prev => !prev);
 
-  const handleUploadSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['servers'] });
-    queryClient.invalidateQueries({ queryKey: ['bookings'] });
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+      <div className="min-h-screen flex items-center justify-center bg-background text-muted-foreground">
         Loading…
       </div>
     );
@@ -80,6 +71,7 @@ function App() {
             onServerAdd={addServer}
             onServerUpdate={updateServer}
             onServerDelete={deleteServer}
+            isAdmin={currentUser.isAdmin}
           />
         );
       case 'bookings':
@@ -119,18 +111,10 @@ function App() {
         onLogout={logoutUser}
         darkMode={darkMode}
         onToggleDarkMode={toggleDarkMode}
-        onOpenUpload={currentUser.isAdmin ? () => setUploadDialogOpen(true) : undefined}
       />
       <main className="container mx-auto px-4 py-8">
         {renderContent()}
       </main>
-      {currentUser.isAdmin && (
-        <ExcelUploadDialog
-          open={uploadDialogOpen}
-          onOpenChange={setUploadDialogOpen}
-          onSuccess={handleUploadSuccess}
-        />
-      )}
       <Toaster />
     </div>
   );

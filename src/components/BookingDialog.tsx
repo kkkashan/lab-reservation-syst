@@ -20,15 +20,7 @@ interface BookingDialogProps {
   onBookingCreate: (booking: Omit<Booking, 'id' | 'createdAt' | 'daysBooked'>) => void;
 }
 
-export function BookingDialog({
-  open,
-  onOpenChange,
-  server,
-  bookings,
-  currentUserEmail,
-  currentUserName,
-  onBookingCreate,
-}: BookingDialogProps) {
+export function BookingDialog({ open, onOpenChange, server, bookings, currentUserEmail, currentUserName, onBookingCreate }: BookingDialogProps) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [purpose, setPurpose] = useState('');
@@ -37,53 +29,27 @@ export function BookingDialog({
 
   if (!server) return null;
 
-  const resetForm = () => {
-    setStartDate('');
-    setEndDate('');
-    setPurpose('');
-    setError(null);
-    setIsSubmitting(false);
-  };
-
-  const handleClose = () => {
-    resetForm();
-    onOpenChange(false);
-  };
+  const resetForm = () => { setStartDate(''); setEndDate(''); setPurpose(''); setError(null); setIsSubmitting(false); };
+  const handleClose = () => { resetForm(); onOpenChange(false); };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
 
-    // Validate dates
     const dateError = validateBookingDates(startDate, endDate);
-    if (dateError) {
-      setError(dateError);
-      setIsSubmitting(false);
-      return;
-    }
+    if (dateError) { setError(dateError); setIsSubmitting(false); return; }
 
-    // Check for conflicts
     const hasConflict = checkBookingConflict(server.id, startDate, endDate, bookings);
-    if (hasConflict) {
-      setError('This server is already booked for the selected dates');
-      setIsSubmitting(false);
-      return;
-    }
+    if (hasConflict) { setError('This server is already booked for the selected dates'); setIsSubmitting(false); return; }
 
-    // Validate purpose
-    if (!purpose.trim()) {
-      setError('Please provide a purpose for the booking');
-      setIsSubmitting(false);
-      return;
-    }
+    if (!purpose.trim()) { setError('Please provide a purpose for the booking'); setIsSubmitting(false); return; }
 
     try {
-      // Create booking
       const bookingData = {
         serverId: server.id,
         serverName: server.name,
-        userId: currentUserEmail, // Using email as user ID for simplicity
+        userId: currentUserEmail,
         userEmail: currentUserEmail,
         userName: currentUserName,
         startDate,
@@ -91,12 +57,9 @@ export function BookingDialog({
         purpose: purpose.trim(),
         status: 'active' as const,
       };
-
       onBookingCreate(bookingData);
-      
       const days = calculateDaysBooked(startDate, endDate);
       toast.success(`Server booked successfully for ${days} days!`);
-      
       handleClose();
     } catch (err) {
       setError('Failed to create booking. Please try again.');
@@ -106,8 +69,6 @@ export function BookingDialog({
 
   const days = startDate && endDate ? calculateDaysBooked(startDate, endDate) : 0;
   const showRenewalWarning = days >= 15;
-
-  // Calculate minimum start date (today)
   const today = new Date().toISOString().split('T')[0];
 
   return (
@@ -124,25 +85,11 @@ export function BookingDialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="start-date">Start Date</Label>
-              <Input
-                id="start-date"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                min={today}
-                required
-              />
+              <Input id="start-date" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} min={today} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="end-date">End Date</Label>
-              <Input
-                id="end-date"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                min={startDate || today}
-                required
-              />
+              <Input id="end-date" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} min={startDate || today} required />
             </div>
           </div>
 
@@ -154,9 +101,9 @@ export function BookingDialog({
           )}
 
           {showRenewalWarning && (
-            <Alert className="border-amber-200 bg-amber-50">
-              <Warning size={16} className="text-amber-600" />
-              <AlertDescription className="text-amber-800">
+            <Alert className="border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20">
+              <Warning size={16} className="text-amber-600 dark:text-amber-400" />
+              <AlertDescription className="text-amber-800 dark:text-amber-300">
                 Bookings longer than 15 days require renewal notifications. You'll receive an email reminder to extend or release the server.
               </AlertDescription>
             </Alert>
@@ -164,30 +111,19 @@ export function BookingDialog({
 
           <div className="space-y-2">
             <Label htmlFor="purpose">Purpose of Booking</Label>
-            <Textarea
-              id="purpose"
-              placeholder="Describe what you'll be using this server for..."
-              value={purpose}
-              onChange={(e) => setPurpose(e.target.value)}
-              rows={3}
-              required
-            />
+            <Textarea id="purpose" placeholder="Describe what you'll be using this server for..." value={purpose} onChange={(e) => setPurpose(e.target.value)} rows={3} required />
           </div>
 
           {error && (
-            <Alert className="border-red-200 bg-red-50">
-              <Warning size={16} className="text-red-600" />
-              <AlertDescription className="text-red-800">{error}</AlertDescription>
+            <Alert className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20">
+              <Warning size={16} className="text-destructive" />
+              <AlertDescription className="text-destructive">{error}</AlertDescription>
             </Alert>
           )}
 
           <DialogFooter className="gap-2">
-            <Button type="button" variant="outline" onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Booking...' : 'Book Server'}
-            </Button>
+            <Button type="button" variant="outline" onClick={handleClose}>Cancel</Button>
+            <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Booking...' : 'Book Server'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

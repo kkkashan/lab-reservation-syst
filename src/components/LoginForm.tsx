@@ -69,17 +69,17 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-6">
         {/* Brand Header */}
         <div className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-14 h-14 rounded-xl bg-[#1e3a5f] flex items-center justify-center shadow-lg">
-              <span className="text-white text-2xl font-bold">◉</span>
+            <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center shadow-lg">
+              <span className="text-primary-foreground text-2xl font-bold">◉</span>
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">LabOps Sentinel</h1>
-          <p className="text-sm text-gray-500 mt-1">Lab Server Management Platform</p>
+          <h1 className="text-2xl font-bold text-foreground">LabOps Sentinel</h1>
+          <p className="text-sm text-muted-foreground mt-1">Lab Server Management Platform</p>
         </div>
 
         {/* Login / Register Card */}
@@ -94,7 +94,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                 variant="ghost"
                 size="sm"
                 type="button"
-                className="text-xs text-blue-600 hover:text-blue-700"
+                className="text-xs text-primary hover:text-primary/80"
                 onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); resetForm(); }}
               >
                 {mode === 'login' ? 'Create Account →' : '← Back to Login'}
@@ -159,10 +159,10 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                 </div>
               )}
 
-              {error && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-md">{error}</p>}
-              {success && <p className="text-sm text-green-600 bg-green-50 px-3 py-2 rounded-md">{success}</p>}
+              {error && <p className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-md">{error}</p>}
+              {success && <p className="text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 px-3 py-2 rounded-md">{success}</p>}
 
-              <Button type="submit" className="w-full bg-[#1e3a5f] hover:bg-[#16304f]" disabled={loading}>
+              <Button type="submit" className="w-full" disabled={loading}>
                 {loading
                   ? (mode === 'login' ? 'Signing in…' : 'Creating account…')
                   : (mode === 'login' ? 'Sign In' : 'Create Account')
@@ -176,7 +176,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
         {mode === 'login' && (
           <Card className="border shadow-sm">
             <CardHeader className="py-3">
-              <CardTitle className="text-xs text-gray-400 uppercase tracking-wider">Quick Fill (Demo)</CardTitle>
+              <CardTitle className="text-xs text-muted-foreground uppercase tracking-wider">Quick Fill (Demo)</CardTitle>
             </CardHeader>
             <CardContent className="pb-3">
               <Button
@@ -188,8 +188,8 @@ export function LoginForm({ onLogin }: LoginFormProps) {
               >
                 👩‍💼 Admin — admin@lab-booking.com
               </Button>
-              <p className="text-[11px] text-gray-400 mt-2 px-1">
-                Default password: <code className="font-mono bg-gray-100 px-1 rounded">password</code>
+              <p className="text-[11px] text-muted-foreground mt-2 px-1">
+                Default password: <code className="font-mono bg-muted px-1 rounded">password</code>
               </p>
             </CardContent>
           </Card>

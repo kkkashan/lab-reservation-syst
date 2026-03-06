@@ -23,35 +23,30 @@ export function ServerDetailsDialog({ open, onOpenChange, server, bookings }: Se
   const serverBookingHistory = bookings
     .filter(booking => booking.serverId === server.id)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 5); // Show last 5 bookings
+    .slice(0, 5);
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'available':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800';
       case 'booked':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-800';
       case 'maintenance':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800';
       case 'offline':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'available':
-        return 'Available';
-      case 'booked':
-        return 'Booked';
-      case 'maintenance':
-        return 'Maintenance';
-      case 'offline':
-        return 'Offline';
-      default:
-        return 'Unknown';
+      case 'available': return 'Available';
+      case 'booked': return 'Booked';
+      case 'maintenance': return 'Maintenance';
+      case 'offline': return 'Offline';
+      default: return 'Unknown';
     }
   };
 
@@ -66,7 +61,6 @@ export function ServerDetailsDialog({ open, onOpenChange, server, bookings }: Se
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Status and Basic Info */}
           <div className="flex items-center justify-between">
             <Badge className={getStatusColor(status)}>
               {getStatusText(status)}
@@ -77,7 +71,6 @@ export function ServerDetailsDialog({ open, onOpenChange, server, bookings }: Se
             </div>
           </div>
 
-          {/* Specifications */}
           <div>
             <h3 className="text-lg font-semibold mb-3">Specifications</h3>
             <div className="grid grid-cols-2 gap-4">
@@ -114,33 +107,31 @@ export function ServerDetailsDialog({ open, onOpenChange, server, bookings }: Se
             </div>
           </div>
 
-          {/* Current Booking */}
           {activeBooking && (
             <div>
               <h3 className="text-lg font-semibold mb-3">Current Booking</h3>
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                 <div className="flex items-center gap-2 mb-2">
-                  <User size={16} className="text-blue-600" />
-                  <span className="font-medium text-blue-900">{activeBooking.userName}</span>
-                  <span className="text-blue-600 text-sm">({activeBooking.userEmail})</span>
+                  <User size={16} className="text-blue-600 dark:text-blue-400" />
+                  <span className="font-medium text-blue-900 dark:text-blue-200">{activeBooking.userName}</span>
+                  <span className="text-blue-600 dark:text-blue-400 text-sm">({activeBooking.userEmail})</span>
                 </div>
                 <div className="flex items-center gap-2 mb-2">
-                  <Calendar size={16} className="text-blue-600" />
-                  <span className="text-blue-800 text-sm">
+                  <Calendar size={16} className="text-blue-600 dark:text-blue-400" />
+                  <span className="text-blue-800 dark:text-blue-300 text-sm">
                     {formatDate(activeBooking.startDate)} - {formatDate(activeBooking.endDate)}
                   </span>
-                  <span className="text-blue-600 text-sm">
+                  <span className="text-blue-600 dark:text-blue-400 text-sm">
                     ({activeBooking.daysBooked} days)
                   </span>
                 </div>
-                <div className="text-blue-800 text-sm">
+                <div className="text-blue-800 dark:text-blue-300 text-sm">
                   <strong>Purpose:</strong> {activeBooking.purpose}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Booking History */}
           {serverBookingHistory.length > 0 && (
             <div>
               <h3 className="text-lg font-semibold mb-3">Recent Booking History</h3>

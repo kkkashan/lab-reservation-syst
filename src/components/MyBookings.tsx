@@ -24,7 +24,6 @@ export function MyBookings({ bookings, currentUserEmail, onExtendBooking, onCanc
   const [newEndDate, setNewEndDate] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  // Filter bookings for current user
   const userBookings = bookings
     .filter(booking => booking.userEmail === currentUserEmail)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -42,15 +41,9 @@ export function MyBookings({ bookings, currentUserEmail, onExtendBooking, onCanc
   const handleExtendSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedBooking) return;
-
     const newEnd = new Date(newEndDate);
     const originalEnd = new Date(selectedBooking.endDate);
-
-    if (newEnd <= originalEnd) {
-      setError('New end date must be after the current end date');
-      return;
-    }
-
+    if (newEnd <= originalEnd) { setError('New end date must be after the current end date'); return; }
     onExtendBooking(selectedBooking.id, newEndDate);
     toast.success('Booking extended successfully!');
     setExtendDialogOpen(false);
@@ -67,10 +60,10 @@ export function MyBookings({ bookings, currentUserEmail, onExtendBooking, onCanc
   };
 
   const getStatusColor = (booking: Booking) => {
-    if (booking.status === 'cancelled') return 'bg-red-100 text-red-800 border-red-200';
-    if (booking.status === 'completed') return 'bg-gray-100 text-gray-800 border-gray-200';
-    if (isBookingActive(booking)) return 'bg-green-100 text-green-800 border-green-200';
-    return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    if (booking.status === 'cancelled') return 'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800';
+    if (booking.status === 'completed') return 'bg-muted text-muted-foreground border-border';
+    if (isBookingActive(booking)) return 'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800';
+    return 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800';
   };
 
   const getStatusText = (booking: Booking) => {
@@ -92,9 +85,7 @@ export function MyBookings({ bookings, currentUserEmail, onExtendBooking, onCanc
               <Database size={18} className="text-primary" />
               {booking.serverName}
             </CardTitle>
-            <Badge className={getStatusColor(booking)}>
-              {getStatusText(booking)}
-            </Badge>
+            <Badge className={getStatusColor(booking)}>{getStatusText(booking)}</Badge>
           </div>
         </CardHeader>
         
@@ -123,9 +114,9 @@ export function MyBookings({ bookings, currentUserEmail, onExtendBooking, onCanc
           </div>
 
           {needsRenewal && (
-            <Alert className="border-amber-200 bg-amber-50">
-              <Warning size={16} className="text-amber-600" />
-              <AlertDescription className="text-amber-800">
+            <Alert className="border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20">
+              <Warning size={16} className="text-amber-600 dark:text-amber-400" />
+              <AlertDescription className="text-amber-800 dark:text-amber-300">
                 This booking is over 15 days. Consider extending or releasing the server.
               </AlertDescription>
             </Alert>
@@ -133,22 +124,8 @@ export function MyBookings({ bookings, currentUserEmail, onExtendBooking, onCanc
 
           {isActive && (
             <div className="flex gap-2 pt-2">
-              <Button
-                onClick={() => handleExtendClick(booking)}
-                variant="outline"
-                size="sm"
-                className="flex-1"
-              >
-                Extend
-              </Button>
-              <Button
-                onClick={() => handleCancelClick(booking)}
-                variant="destructive"
-                size="sm"
-                className="flex-1"
-              >
-                Cancel
-              </Button>
+              <Button onClick={() => handleExtendClick(booking)} variant="outline" size="sm" className="flex-1">Extend</Button>
+              <Button onClick={() => handleCancelClick(booking)} variant="destructive" size="sm" className="flex-1">Cancel</Button>
             </div>
           )}
         </CardContent>
@@ -159,16 +136,13 @@ export function MyBookings({ bookings, currentUserEmail, onExtendBooking, onCanc
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">My Bookings</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage your current and past server bookings
-        </p>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">My Bookings</h1>
+        <p className="text-muted-foreground mt-1">Manage your current and past server bookings</p>
       </div>
 
-      {/* Active Bookings */}
       <div>
         <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <CheckCircle size={20} className="text-green-600" />
+          <CheckCircle size={20} className="text-green-600 dark:text-green-400" />
           Active Bookings ({activeBookings.length})
         </h2>
         
@@ -177,84 +151,55 @@ export function MyBookings({ bookings, currentUserEmail, onExtendBooking, onCanc
             <CardContent className="text-center py-8">
               <Database size={48} className="mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-medium mb-2">No active bookings</h3>
-              <p className="text-muted-foreground">
-                You don't have any active server bookings at the moment.
-              </p>
+              <p className="text-muted-foreground">You don't have any active server bookings at the moment.</p>
             </CardContent>
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {activeBookings.map(booking => (
-              <BookingCard key={booking.id} booking={booking} />
-            ))}
+            {activeBookings.map(booking => <BookingCard key={booking.id} booking={booking} />)}
           </div>
         )}
       </div>
 
-      {/* Past Bookings */}
       {pastBookings.length > 0 && (
         <div>
-          <h2 className="text-xl font-semibold mb-4">Past Bookings ({pastBookings.length})</h2>
+          <h2 className="text-xl font-semibold mb-4 text-foreground">Past Bookings ({pastBookings.length})</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {pastBookings.slice(0, 6).map(booking => (
-              <BookingCard key={booking.id} booking={booking} />
-            ))}
+            {pastBookings.slice(0, 6).map(booking => <BookingCard key={booking.id} booking={booking} />)}
           </div>
         </div>
       )}
 
-      {/* Extend Booking Dialog */}
       <Dialog open={extendDialogOpen} onOpenChange={setExtendDialogOpen}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Extend Booking</DialogTitle>
-          </DialogHeader>
-
+          <DialogHeader><DialogTitle>Extend Booking</DialogTitle></DialogHeader>
           {selectedBooking && (
             <form onSubmit={handleExtendSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label>Server</Label>
                 <div className="text-sm font-medium">{selectedBooking.serverName}</div>
               </div>
-
               <div className="space-y-2">
                 <Label>Current End Date</Label>
                 <div className="text-sm">{formatDate(selectedBooking.endDate)}</div>
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="new-end-date">New End Date</Label>
-                <Input
-                  id="new-end-date"
-                  type="date"
-                  value={newEndDate}
-                  onChange={(e) => setNewEndDate(e.target.value)}
-                  min={selectedBooking.endDate}
-                  required
-                />
+                <Input id="new-end-date" type="date" value={newEndDate} onChange={(e) => setNewEndDate(e.target.value)} min={selectedBooking.endDate} required />
               </div>
-
               {newEndDate && (
                 <div className="text-sm text-muted-foreground">
                   New duration: {calculateDaysBooked(selectedBooking.startDate, newEndDate)} days
                 </div>
               )}
-
               {error && (
-                <Alert className="border-red-200 bg-red-50">
-                  <Warning size={16} className="text-red-600" />
-                  <AlertDescription className="text-red-800">{error}</AlertDescription>
+                <Alert className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20">
+                  <Warning size={16} className="text-destructive" />
+                  <AlertDescription className="text-destructive">{error}</AlertDescription>
                 </Alert>
               )}
-
               <DialogFooter className="gap-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setExtendDialogOpen(false)}
-                >
-                  Cancel
-                </Button>
+                <Button type="button" variant="outline" onClick={() => setExtendDialogOpen(false)}>Cancel</Button>
                 <Button type="submit">Extend Booking</Button>
               </DialogFooter>
             </form>

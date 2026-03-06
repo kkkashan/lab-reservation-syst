@@ -37,7 +37,6 @@ export function Reports() {
     return { total: bookings.length, overdue, avgDuration, utilization };
   }, [bookings, servers]);
 
-  // Status distribution data
   const statusDistribution = useMemo(() => {
     let available = 0, reserved = 0, overdueCount = 0;
     const today = new Date();
@@ -57,20 +56,17 @@ export function Reports() {
     ];
   }, [servers, bookings]);
 
-  // Activity data
   const activityData = useMemo(() => {
     const actions: Record<string, number> = {};
     bookings.forEach(b => {
       const action = b.status === 'active' ? 'Booked' : b.status === 'completed' ? 'Completed' : 'Cancelled';
       actions[action] = (actions[action] || 0) + 1;
     });
-    // Add placeholder actions
     if (!actions['Booked']) actions['Booked'] = 0;
     if (!actions['Completed']) actions['Completed'] = 0;
     return Object.entries(actions).map(([name, count]) => ({ name, count }));
   }, [bookings]);
 
-  // Filtered booking history
   const bookingHistory = useMemo(() => {
     let list = bookings.map(b => {
       const server = servers.find(s => s.id === b.serverId);
@@ -79,19 +75,13 @@ export function Reports() {
       const duration = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / 86400000));
       const isOverdue = end < new Date() && b.status === 'active';
       return {
-        id: b.id,
-        server: server?.name || b.serverId,
-        owner: b.bookedBy,
-        startDate: b.startDate,
-        endDate: b.endDate,
-        duration,
+        id: b.id, server: server?.name || b.serverId, owner: b.bookedBy,
+        startDate: b.startDate, endDate: b.endDate, duration,
         status: isOverdue ? 'Overdue' : b.status === 'active' ? 'Active' : b.status === 'completed' ? 'Completed' : 'Cancelled',
       };
     });
-
     if (ownerFilter) list = list.filter(b => b.owner.toLowerCase().includes(ownerFilter.toLowerCase()));
     if (serverFilter) list = list.filter(b => b.server.toLowerCase().includes(serverFilter.toLowerCase()));
-
     list.sort((a, b) => {
       if (sortBy === 'endDate') return new Date(b.endDate).getTime() - new Date(a.endDate).getTime();
       if (sortBy === 'startDate') return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
@@ -101,7 +91,6 @@ export function Reports() {
     return list;
   }, [bookings, servers, ownerFilter, serverFilter, sortBy]);
 
-  // Activity log
   const activityLog = useMemo(() => {
     return bookings.slice(0, 10).map(b => {
       const server = servers.find(s => s.id === b.serverId);
@@ -115,40 +104,49 @@ export function Reports() {
     });
   }, [bookings, servers]);
 
-  const statusColor: Record<string, string> = { Active: 'bg-blue-100 text-blue-700', Overdue: 'bg-red-100 text-red-700', Completed: 'bg-green-100 text-green-700', Cancelled: 'bg-gray-100 text-gray-700' };
-  const logColor: Record<string, string> = { Booked: 'bg-blue-100 text-blue-700', Overdue: 'bg-red-100 text-red-700', Completed: 'bg-green-100 text-green-700' };
+  const statusColor: Record<string, string> = {
+    Active:    'bg-blue-100 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400',
+    Overdue:   'bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400',
+    Completed: 'bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400',
+    Cancelled: 'bg-muted text-muted-foreground',
+  };
+  const logColor: Record<string, string> = {
+    Booked:    'bg-blue-100 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400',
+    Overdue:   'bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400',
+    Completed: 'bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400',
+  };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
-        <p className="text-sm text-gray-500">Track booking trends, server utilization, and activity logs</p>
+        <h1 className="text-2xl font-bold text-foreground">Reports & Analytics</h1>
+        <p className="text-sm text-muted-foreground">Track booking trends, server utilization, and activity logs</p>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="border-l-4 border-l-blue-500">
           <CardContent className="py-4 px-5">
-            <p className="text-xs text-gray-500">Total Bookings</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+            <p className="text-xs text-muted-foreground">Total Bookings</p>
+            <p className="text-2xl font-bold text-foreground">{stats.total}</p>
           </CardContent>
         </Card>
         <Card className="border-l-4 border-l-red-500">
           <CardContent className="py-4 px-5">
-            <p className="text-xs text-gray-500">Overdue</p>
-            <p className="text-2xl font-bold text-red-600">{stats.overdue}</p>
+            <p className="text-xs text-muted-foreground">Overdue</p>
+            <p className="text-2xl font-bold text-destructive">{stats.overdue}</p>
           </CardContent>
         </Card>
         <Card className="border-l-4 border-l-amber-500">
           <CardContent className="py-4 px-5">
-            <p className="text-xs text-gray-500">Avg Duration</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.avgDuration}d</p>
+            <p className="text-xs text-muted-foreground">Avg Duration</p>
+            <p className="text-2xl font-bold text-foreground">{stats.avgDuration}d</p>
           </CardContent>
         </Card>
         <Card className="border-l-4 border-l-teal-500">
           <CardContent className="py-4 px-5">
-            <p className="text-xs text-gray-500">Utilization</p>
-            <p className="text-2xl font-bold text-gray-900">{stats.utilization}%</p>
+            <p className="text-xs text-muted-foreground">Utilization</p>
+            <p className="text-2xl font-bold text-foreground">{stats.utilization}%</p>
           </CardContent>
         </Card>
       </div>
@@ -162,10 +160,10 @@ export function Reports() {
           <CardContent>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={statusDistribution} barSize={48}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                <Tooltip />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border" />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                <Tooltip contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '0.5rem', color: 'var(--foreground)' }} />
                 <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                   {statusDistribution.map((entry, idx) => (
                     <Cell key={idx} fill={entry.color} />
@@ -175,7 +173,7 @@ export function Reports() {
             </ResponsiveContainer>
             <div className="flex items-center justify-center gap-4 mt-2">
               {statusDistribution.map(s => (
-                <span key={s.name} className="flex items-center gap-1 text-xs text-gray-500">
+                <span key={s.name} className="flex items-center gap-1 text-xs text-muted-foreground">
                   <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} /> {s.name}
                 </span>
               ))}
@@ -190,10 +188,10 @@ export function Reports() {
           <CardContent>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={activityData} barSize={48}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                <Tooltip />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border" />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                <Tooltip contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '0.5rem', color: 'var(--foreground)' }} />
                 <Bar dataKey="count" fill="#14b8a6" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -232,7 +230,7 @@ export function Reports() {
             </TableHeader>
             <TableBody>
               {bookingHistory.length === 0 ? (
-                <TableRow><TableCell colSpan={6} className="text-center text-sm text-gray-400 py-8">No bookings found.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-8">No bookings found.</TableCell></TableRow>
               ) : bookingHistory.map(b => (
                 <TableRow key={b.id}>
                   <TableCell className="text-xs font-medium">{b.server}</TableCell>
@@ -240,7 +238,7 @@ export function Reports() {
                   <TableCell className="text-xs">{formatDate(b.startDate)}</TableCell>
                   <TableCell className="text-xs">{formatDate(b.endDate)}</TableCell>
                   <TableCell className="text-xs">{b.duration}d</TableCell>
-                  <TableCell><Badge className={`text-[10px] ${statusColor[b.status] || 'bg-gray-100 text-gray-700'}`}>{b.status}</Badge></TableCell>
+                  <TableCell><Badge className={`text-[10px] ${statusColor[b.status] || 'bg-muted text-muted-foreground'}`}>{b.status}</Badge></TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -255,16 +253,16 @@ export function Reports() {
         </CardHeader>
         <CardContent>
           {activityLog.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-6">No activity recorded.</p>
+            <p className="text-sm text-muted-foreground text-center py-6">No activity recorded.</p>
           ) : (
             <div className="space-y-2">
               {activityLog.map((log, i) => (
-                <div key={log.id + '-' + i} className="flex items-center justify-between border-b last:border-0 pb-2 last:pb-0">
+                <div key={log.id + '-' + i} className="flex items-center justify-between border-b border-border last:border-0 pb-2 last:pb-0">
                   <div className="flex items-center gap-3">
-                    <Badge className={`text-[10px] w-20 justify-center ${logColor[log.action] || 'bg-gray-100 text-gray-700'}`}>{log.action}</Badge>
-                    <span className="text-xs text-gray-700">{log.detail}</span>
+                    <Badge className={`text-[10px] w-20 justify-center ${logColor[log.action] || 'bg-muted text-muted-foreground'}`}>{log.action}</Badge>
+                    <span className="text-xs text-foreground">{log.detail}</span>
                   </div>
-                  <span className="text-[10px] text-gray-400">{log.time}</span>
+                  <span className="text-[10px] text-muted-foreground">{log.time}</span>
                 </div>
               ))}
             </div>

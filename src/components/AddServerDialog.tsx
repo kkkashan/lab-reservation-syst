@@ -131,8 +131,8 @@ export function AddServerDialog({ open, onOpenChange, onServerAdd }: AddServerDi
           </div>
 
           {/* Infrastructure Details */}
-          <div className="border-t pt-4">
-            <p className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">Infrastructure Details (Optional)</p>
+          <div className="border-t border-border pt-4">
+            <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">Infrastructure Details (Optional)</p>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="rscm-ip">RScm IP</Label>
@@ -162,9 +162,9 @@ export function AddServerDialog({ open, onOpenChange, onServerAdd }: AddServerDi
           </div>
 
           {error && (
-            <Alert className="border-red-200 bg-red-50">
-              <Warning size={16} className="text-red-600" />
-              <AlertDescription className="text-red-800">{error}</AlertDescription>
+            <Alert className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20">
+              <Warning size={16} className="text-red-600 dark:text-red-400" />
+              <AlertDescription className="text-red-800 dark:text-red-400">{error}</AlertDescription>
             </Alert>
           )}
 

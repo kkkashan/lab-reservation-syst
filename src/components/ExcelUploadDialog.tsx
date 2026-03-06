@@ -59,7 +59,7 @@ export function ExcelUploadDialog({ open, onOpenChange, onSuccess }: ExcelUpload
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <FileXls size={20} className="text-green-600" />
+            <FileXls size={20} className="text-green-600 dark:text-green-400" />
             Import / Export Server Data
           </DialogTitle>
           <DialogDescription>
@@ -71,7 +71,7 @@ export function ExcelUploadDialog({ open, onOpenChange, onSuccess }: ExcelUpload
           {/* Export Section */}
           <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border">
             <div>
-              <p className="text-sm font-medium">Export Current Data</p>
+              <p className="text-sm font-medium text-foreground">Export Current Data</p>
               <p className="text-xs text-muted-foreground">Download all servers & active bookings as Excel</p>
             </div>
             <Button variant="outline" size="sm" onClick={handleExport} className="flex items-center gap-2">
@@ -92,8 +92,8 @@ export function ExcelUploadDialog({ open, onOpenChange, onSuccess }: ExcelUpload
             {file ? (
               <div className="space-y-3">
                 <div className="flex items-center justify-center gap-2">
-                  <FileXls size={24} className="text-green-600" />
-                  <span className="text-sm font-medium">{file.name}</span>
+                  <FileXls size={24} className="text-green-600 dark:text-green-400" />
+                  <span className="text-sm font-medium text-foreground">{file.name}</span>
                   <Badge variant="secondary" className="text-xs">
                     {(file.size / 1024).toFixed(1)} KB
                   </Badge>
@@ -125,41 +125,41 @@ export function ExcelUploadDialog({ open, onOpenChange, onSuccess }: ExcelUpload
           {/* Results */}
           {result && (
             <div className="space-y-2 p-3 bg-muted/50 rounded-lg border">
-              <p className="text-sm font-semibold flex items-center gap-2">
-                <CheckCircle size={16} className="text-green-600" /> Import Results
+              <p className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                <CheckCircle size={16} className="text-green-600 dark:text-green-400" /> Import Results
               </p>
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div>
-                  <p className="text-lg font-bold text-green-600">{result.serversCreated}</p>
+                  <p className="text-lg font-bold text-green-600 dark:text-green-400">{result.serversCreated}</p>
                   <p className="text-xs text-muted-foreground">Servers Created</p>
                 </div>
                 <div>
-                  <p className="text-lg font-bold text-blue-600">{result.serversUpdated}</p>
+                  <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{result.serversUpdated}</p>
                   <p className="text-xs text-muted-foreground">Servers Updated</p>
                 </div>
                 <div>
-                  <p className="text-lg font-bold text-amber-600">{result.rowsSkipped}</p>
+                  <p className="text-lg font-bold text-amber-600 dark:text-amber-400">{result.rowsSkipped}</p>
                   <p className="text-xs text-muted-foreground">Rows Skipped</p>
                 </div>
               </div>
               {(result.bookingsCreated > 0 || result.bookingsUpdated > 0) && (
-                <div className="grid grid-cols-2 gap-2 text-center pt-1 border-t">
+                <div className="grid grid-cols-2 gap-2 text-center pt-1 border-t border-border">
                   <div>
-                    <p className="text-lg font-bold text-green-600">{result.bookingsCreated}</p>
+                    <p className="text-lg font-bold text-green-600 dark:text-green-400">{result.bookingsCreated}</p>
                     <p className="text-xs text-muted-foreground">Bookings Created</p>
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-blue-600">{result.bookingsUpdated}</p>
+                    <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{result.bookingsUpdated}</p>
                     <p className="text-xs text-muted-foreground">Bookings Updated</p>
                   </div>
                 </div>
               )}
               {result.errors && result.errors.length > 0 && (
                 <div className="mt-2 p-2 bg-red-50 dark:bg-red-950/20 rounded border border-red-200 dark:border-red-800">
-                  <p className="text-xs font-medium text-red-600 flex items-center gap-1 mb-1">
+                  <p className="text-xs font-medium text-destructive flex items-center gap-1 mb-1">
                     <XCircle size={12} /> Errors ({result.errors.length})
                   </p>
-                  <ul className="text-xs text-red-500 space-y-0.5 max-h-32 overflow-y-auto">
+                  <ul className="text-xs text-red-500 dark:text-red-400 space-y-0.5 max-h-32 overflow-y-auto">
                     {result.errors.map((e, i) => <li key={i}>• {e}</li>)}
                   </ul>
                 </div>
@@ -169,7 +169,7 @@ export function ExcelUploadDialog({ open, onOpenChange, onSuccess }: ExcelUpload
 
           {/* Column Reference */}
           <div className="text-xs text-muted-foreground p-3 bg-muted/30 rounded-lg">
-            <p className="font-medium mb-1">Expected Excel columns:</p>
+            <p className="font-medium mb-1 text-foreground">Expected Excel columns:</p>
             <p>
               <code className="font-mono bg-muted px-1 rounded">name</code> (required),{' '}
               <code className="font-mono bg-muted px-1 rounded">cpu</code>,{' '}
@@ -186,7 +186,7 @@ export function ExcelUploadDialog({ open, onOpenChange, onSuccess }: ExcelUpload
               <code className="font-mono bg-muted px-1 rounded">pool</code>
             </p>
             <p className="mt-1">
-              <span className="font-medium">Booking columns (optional):</span>{' '}
+              <span className="font-medium text-foreground">Booking columns (optional):</span>{' '}
               <code className="font-mono bg-muted px-1 rounded">team_assigned</code>,{' '}
               <code className="font-mono bg-muted px-1 rounded">user_email</code>,{' '}
               <code className="font-mono bg-muted px-1 rounded">start_date</code>,{' '}

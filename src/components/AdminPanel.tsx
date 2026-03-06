@@ -160,12 +160,12 @@ export function AdminPanel({ servers, bookings, onServerAdd, onServerUpdate, onS
 
   const getStatusColor = (status: string) => {
     const map: Record<string, string> = {
-      available: 'bg-green-100 text-green-800 border-green-200',
-      booked: 'bg-blue-100 text-blue-800 border-blue-200',
-      maintenance: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      offline: 'bg-red-100 text-red-800 border-red-200',
+      available:   'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800',
+      booked:      'bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-800',
+      maintenance: 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800',
+      offline:     'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800',
     };
-    return map[status] ?? 'bg-gray-100 text-gray-800 border-gray-200';
+    return map[status] ?? 'bg-muted text-muted-foreground border-border';
   };
 
   const totalServers = servers.length;
@@ -186,16 +186,16 @@ export function AdminPanel({ servers, bookings, onServerAdd, onServerUpdate, onS
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Admin Panel</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Admin Panel</h1>
         <p className="text-muted-foreground mt-1">Manage servers, users, and monitor system usage</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Total Servers</CardTitle><Database size={16} className="text-muted-foreground" /></CardHeader><CardContent><div className="text-2xl font-bold">{totalServers}</div></CardContent></Card>
-        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Available</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-green-600">{availableServers}</div></CardContent></Card>
-        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Booked</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-blue-600">{bookedServers}</div></CardContent></Card>
-        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Total Users</CardTitle><Users size={16} className="text-muted-foreground" /></CardHeader><CardContent><div className="text-2xl font-bold">{users.length}</div></CardContent></Card>
+        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Total Servers</CardTitle><Database size={16} className="text-muted-foreground" /></CardHeader><CardContent><div className="text-2xl font-bold text-foreground">{totalServers}</div></CardContent></Card>
+        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Available</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-green-600 dark:text-green-400">{availableServers}</div></CardContent></Card>
+        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Booked</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{bookedServers}</div></CardContent></Card>
+        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Total Users</CardTitle><Users size={16} className="text-muted-foreground" /></CardHeader><CardContent><div className="text-2xl font-bold text-foreground">{users.length}</div></CardContent></Card>
       </div>
 
       {/* Tabbed content */}
@@ -377,8 +377,6 @@ export function AdminPanel({ servers, bookings, onServerAdd, onServerUpdate, onS
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
-
 
         {/* ── Email Tab ── */}
         <TabsContent value="email" className="space-y-4">
@@ -387,8 +385,8 @@ export function AdminPanel({ servers, bookings, onServerAdd, onServerUpdate, onS
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 {emailStatus?.configured
-                  ? <CheckCircle size={18} className="text-green-500" />
-                  : <Warning size={18} className="text-yellow-500" />}
+                  ? <CheckCircle size={18} className="text-green-500 dark:text-green-400" />
+                  : <Warning size={18} className="text-yellow-500 dark:text-yellow-400" />}
                 SMTP Configuration
               </CardTitle>
             </CardHeader>
@@ -397,31 +395,31 @@ export function AdminPanel({ servers, bookings, onServerAdd, onServerUpdate, onS
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="space-y-1">
                     <p className="text-muted-foreground text-xs uppercase tracking-wide">SMTP Host</p>
-                    <p className="font-medium">{emailStatus.smtpHost}</p>
+                    <p className="font-medium text-foreground">{emailStatus.smtpHost}</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-muted-foreground text-xs uppercase tracking-wide">Port</p>
-                    <p className="font-medium">{emailStatus.smtpPort}</p>
+                    <p className="font-medium text-foreground">{emailStatus.smtpPort}</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-muted-foreground text-xs uppercase tracking-wide">Sender</p>
-                    <p className="font-medium">{emailStatus.smtpUser}</p>
+                    <p className="font-medium text-foreground">{emailStatus.smtpUser}</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-muted-foreground text-xs uppercase tracking-wide">Schedule</p>
-                    <p className="font-medium">{emailStatus.schedule}</p>
+                    <p className="font-medium text-foreground">{emailStatus.schedule}</p>
                   </div>
                 </div>
               ) : (
-                <div className="rounded-lg bg-yellow-50 border border-yellow-200 p-4 text-sm space-y-2">
-                  <p className="font-semibold text-yellow-800">SMTP not configured</p>
-                  <p className="text-yellow-700">Add the following variables to your backend <code className="bg-yellow-100 px-1 rounded">.env</code> file:</p>
-                  <pre className="bg-yellow-100 rounded p-3 text-xs overflow-auto text-yellow-900">{`SMTP_HOST=smtp.gmail.com
+                <div className="rounded-lg bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 p-4 text-sm space-y-2">
+                  <p className="font-semibold text-yellow-800 dark:text-yellow-400">SMTP not configured</p>
+                  <p className="text-yellow-700 dark:text-yellow-500">Add the following variables to your backend <code className="bg-yellow-100 dark:bg-yellow-900/40 px-1 rounded">.env</code> file:</p>
+                  <pre className="bg-yellow-100 dark:bg-yellow-900/30 rounded p-3 text-xs overflow-auto text-yellow-900 dark:text-yellow-300">{`SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=you@gmail.com
 SMTP_PASS=your-app-password
 SMTP_FROM=Lab Booking <you@gmail.com>`}</pre>
-                  <p className="text-yellow-700 text-xs">For Gmail, use an <strong>App Password</strong> (not your regular password). For Outlook use <code>smtp.office365.com</code>.</p>
+                  <p className="text-yellow-700 dark:text-yellow-500 text-xs">For Gmail, use an <strong>App Password</strong> (not your regular password). For Outlook use <code>smtp.office365.com</code>.</p>
                 </div>
               )}
             </CardContent>
@@ -435,14 +433,14 @@ SMTP_FROM=Lab Booking <you@gmail.com>`}</pre>
             <CardContent className="space-y-4">
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1 border rounded-lg p-4 space-y-2">
-                  <h4 className="font-semibold text-sm">Send Test Email</h4>
+                  <h4 className="font-semibold text-sm text-foreground">Send Test Email</h4>
                   <p className="text-xs text-muted-foreground">Sends a single test email to your admin account to verify SMTP is working.</p>
                   <Button size="sm" variant="outline" onClick={handleSendTestEmail} disabled={testSending || !emailStatus?.configured}>
                     {testSending ? 'Sending…' : 'Send Test Email'}
                   </Button>
                 </div>
                 <div className="flex-1 border rounded-lg p-4 space-y-2">
-                  <h4 className="font-semibold text-sm">Send Weekly Digest Now</h4>
+                  <h4 className="font-semibold text-sm text-foreground">Send Weekly Digest Now</h4>
                   <p className="text-xs text-muted-foreground">Immediately send the weekly digest to all users. Normally runs every Monday at 08:00 UTC.</p>
                   <Button size="sm" onClick={handleSendDigest} disabled={emailSending || !emailStatus?.configured}>
                     {emailSending ? 'Sending…' : 'Send Digest to All Users'}
@@ -451,9 +449,9 @@ SMTP_FROM=Lab Booking <you@gmail.com>`}</pre>
               </div>
 
               {digestResult && (
-                <div className="rounded-lg bg-green-50 border border-green-200 p-4 text-sm">
-                  <p className="font-semibold text-green-800 mb-2">Digest Complete</p>
-                  <div className="flex gap-6 text-green-700">
+                <div className="rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 p-4 text-sm">
+                  <p className="font-semibold text-green-800 dark:text-green-400 mb-2">Digest Complete</p>
+                  <div className="flex gap-6 text-green-700 dark:text-green-400">
                     <span>✅ Sent: <strong>{digestResult.sent}</strong></span>
                     <span>⏭ Skipped: <strong>{digestResult.skipped}</strong></span>
                     <span>❌ Errors: <strong>{digestResult.errors}</strong></span>
@@ -468,14 +466,15 @@ SMTP_FROM=Lab Booking <you@gmail.com>`}</pre>
             <CardHeader><CardTitle className="text-base">What's in the Weekly Email?</CardTitle></CardHeader>
             <CardContent>
               <ul className="text-sm text-muted-foreground space-y-2">
-                <li>📋 <strong>Active bookings summary</strong> — server name, purpose, days remaining</li>
-                <li>⚠ <strong>Expiry alerts</strong> — highlighted when a booking expires within 7 days</li>
-                <li>🖥 <strong>Available servers count</strong> — shows how many servers are free to book</li>
-                <li>🔗 <strong>Direct link</strong> to the booking portal</li>
+                <li>📋 <strong className="text-foreground">Active bookings summary</strong> — server name, purpose, days remaining</li>
+                <li>⚠ <strong className="text-foreground">Expiry alerts</strong> — highlighted when a booking expires within 7 days</li>
+                <li>🖥 <strong className="text-foreground">Available servers count</strong> — shows how many servers are free to book</li>
+                <li>🔗 <strong className="text-foreground">Direct link</strong> to the booking portal</li>
               </ul>
             </CardContent>
           </Card>
         </TabsContent>
+      </Tabs>
 
       <AddServerDialog open={addServerOpen} onOpenChange={setAddServerOpen} onServerAdd={onServerAdd} />
       <AddUserDialog open={addUserOpen} onOpenChange={setAddUserOpen} onCreated={() => queryClient.invalidateQueries({ queryKey: ['admin-users'] })} />
