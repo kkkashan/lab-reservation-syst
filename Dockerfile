@@ -34,9 +34,9 @@ ENV BACKEND_URL=http://backend:3001
 # Only substitute BACKEND_URL — leave nginx variables ($host, $uri, etc.) alone
 ENV NGINX_ENVSUBST_FILTER=BACKEND_URL
 
-# Health check
+# Health check (use 127.0.0.1 — Alpine resolves localhost to ::1 IPv6 first)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
-  CMD wget --quiet --tries=1 --spider http://localhost:80/health || exit 1
+  CMD wget --quiet --tries=1 --spider http://127.0.0.1:80/health || exit 1
 
 # nginx:alpine auto-processes /etc/nginx/templates/*.template at startup
 CMD ["nginx", "-g", "daemon off;"]

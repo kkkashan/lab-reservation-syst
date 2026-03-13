@@ -89,15 +89,17 @@ export interface AppUser {
 export interface ServerData {
   id: string;
   name: string;
-  specifications: { cpu: string; memory: string; storage: string; gpu?: string | null };
-  status: 'available' | 'booked' | 'maintenance' | 'offline';
-  location: string;
-  rscmIp?: string | null;
-  slotId?: number | null;
-  fwVersion?: string | null;
-  dsPool?: string | null;
-  testHarness?: string | null;
-  pool?: string | null;
+  teamAssigned?: string | null;
+  assignedUser?: string | null;
+  serverFamily?: string | null;
+  serverSku?: string | null;
+  status: 'ready' | 'not_ready';
+  dateAllocated?: string | null;
+  duration?: string | null;
+  rmIp?: string | null;
+  slotId?: string | null;
+  homePool?: string | null;
+  firmwareVersion?: string | null;
   currentBooking?: BookingData | null;
 }
 
@@ -115,22 +117,23 @@ export interface BookingData {
   createdAt: string;
   renewalNotificationSent?: boolean;
   daysBooked: number;
-  teamAssigned?: string | null;
-  server?: { name: string; rscmIp?: string | null; slotId?: number | null; fwVersion?: string | null; dsPool?: string | null; testHarness?: string | null; pool?: string | null };
+  server?: { name: string; teamAssigned?: string | null; serverFamily?: string | null; serverSku?: string | null; rmIp?: string | null; slotId?: string | null; homePool?: string | null; firmwareVersion?: string | null };
   user?: { email: string; name: string };
 }
 
 export interface CreateServerPayload {
-  status?: 'available' | 'booked' | 'maintenance' | 'offline';
   name: string;
-  specifications: { cpu: string; memory: string; storage: string; gpu?: string };
-  location: string;
-  rscmIp?: string;
-  slotId?: number;
-  fwVersion?: string;
-  dsPool?: string;
-  testHarness?: string;
-  pool?: string;
+  teamAssigned?: string;
+  assignedUser?: string;
+  serverFamily?: string;
+  serverSku?: string;
+  status?: 'ready' | 'not_ready';
+  dateAllocated?: string;
+  duration?: string;
+  rmIp?: string;
+  slotId?: string;
+  homePool?: string;
+  firmwareVersion?: string;
 }
 
 export interface CreateBookingPayload {
@@ -139,7 +142,6 @@ export interface CreateBookingPayload {
   startDate: string;
   endDate: string;
   purpose: string;
-  teamAssigned?: string;
 }
 
 // ── Users (admin) ─────────────────────────────────────────────────
@@ -179,8 +181,6 @@ export const adminApi = {
 export interface UploadResult {
   serversCreated: number;
   serversUpdated: number;
-  bookingsCreated: number;
-  bookingsUpdated: number;
   rowsSkipped: number;
   totalRows: number;
   errors?: string[];

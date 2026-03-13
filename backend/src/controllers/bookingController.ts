@@ -47,7 +47,7 @@ export const getBookingsByUser = async (req: AuthRequest, res: Response, next: N
 
 export const createBooking = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { serverId, userId, startDate, endDate, purpose, teamAssigned } = req.body;
+    const { serverId, userId, startDate, endDate, purpose } = req.body;
 
     // Check for overlapping bookings
     const overlappingBooking = await prisma.booking.findFirst({
@@ -94,7 +94,6 @@ export const createBooking = async (req: AuthRequest, res: Response, next: NextF
         purpose,
         daysBooked,
         status: 'active',
-        teamAssigned: teamAssigned || null,
       },
       include: {
         server: true,
@@ -107,7 +106,7 @@ export const createBooking = async (req: AuthRequest, res: Response, next: NextF
     // Update server status
     await prisma.server.update({
       where: { id: serverId },
-      data: { status: 'booked' },
+      data: { status: 'not_ready' },
     });
 
     res.status(201).json({ status: 'success', data: booking });
@@ -179,7 +178,7 @@ export const cancelBooking = async (req: AuthRequest, res: Response, next: NextF
     if (activeBookings === 0) {
       await prisma.server.update({
         where: { id: booking.serverId },
-        data: { status: 'available' },
+        data: { status: 'ready' },
       });
     }
 

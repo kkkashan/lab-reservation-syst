@@ -160,18 +160,15 @@ export function AdminPanel({ servers, bookings, onServerAdd, onServerUpdate, onS
 
   const getStatusColor = (status: string) => {
     const map: Record<string, string> = {
-      available:   'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800',
-      booked:      'bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-800',
-      maintenance: 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800',
-      offline:     'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800',
+      ready:     'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800',
+      not_ready: 'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800',
     };
     return map[status] ?? 'bg-muted text-muted-foreground border-border';
   };
 
   const totalServers = servers.length;
-  const availableServers = servers.filter(s => getServerStatus(s, bookings) === 'available').length;
-  const bookedServers = servers.filter(s => getServerStatus(s, bookings) === 'booked').length;
-  const maintenanceServers = servers.filter(s => s.status === 'maintenance').length;
+  const readyServers = servers.filter(s => s.status === 'ready').length;
+  const notReadyServers = servers.filter(s => s.status === 'not_ready').length;
 
   const recentBookings = [...bookings]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -193,8 +190,8 @@ export function AdminPanel({ servers, bookings, onServerAdd, onServerUpdate, onS
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Total Servers</CardTitle><Database size={16} className="text-muted-foreground" /></CardHeader><CardContent><div className="text-2xl font-bold text-foreground">{totalServers}</div></CardContent></Card>
-        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Available</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-green-600 dark:text-green-400">{availableServers}</div></CardContent></Card>
-        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Booked</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{bookedServers}</div></CardContent></Card>
+        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Ready</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-green-600 dark:text-green-400">{readyServers}</div></CardContent></Card>
+        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Not Ready</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold text-red-600 dark:text-red-400">{notReadyServers}</div></CardContent></Card>
         <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Total Users</CardTitle><Users size={16} className="text-muted-foreground" /></CardHeader><CardContent><div className="text-2xl font-bold text-foreground">{users.length}</div></CardContent></Card>
       </div>
 
@@ -220,38 +217,38 @@ export function AdminPanel({ servers, bookings, onServerAdd, onServerUpdate, onS
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Specifications</TableHead>
+                    <TableHead>Team</TableHead>
+                    <TableHead>SKU / Family</TableHead>
+                    <TableHead>RM IP</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {servers.map(server => {
-                    const currentStatus = getServerStatus(server, bookings);
                     return (
                       <TableRow key={server.id}>
                         <TableCell className="font-medium">{server.name}</TableCell>
-                        <TableCell>{server.location}</TableCell>
+                        <TableCell>{server.teamAssigned || '—'}</TableCell>
                         <TableCell className="text-sm">
-                          <div>{server.specifications.cpu}</div>
-                          <div className="text-muted-foreground">{server.specifications.memory} | {server.specifications.storage}</div>
+                          <div>{server.serverSku || '—'}</div>
+                          <div className="text-muted-foreground">{server.serverFamily || ''}</div>
                         </TableCell>
+                        <TableCell className="text-sm">{server.rmIp || '—'}</TableCell>
                         <TableCell>
                           <div className="space-y-2">
-                            <Badge className={getStatusColor(currentStatus)}>{currentStatus}</Badge>
+                            <Badge className={getStatusColor(server.status)}>{server.status === 'ready' ? 'Ready' : 'Not Ready'}</Badge>
                             <Select value={server.status} onValueChange={v => handleStatusChange(server.id, v as Server['status'])}>
                               <SelectTrigger className="w-32 h-8"><SelectValue /></SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="available">Available</SelectItem>
-                                <SelectItem value="maintenance">Maintenance</SelectItem>
-                                <SelectItem value="offline">Offline</SelectItem>
+                                <SelectItem value="ready">Ready</SelectItem>
+                                <SelectItem value="not_ready">Not Ready</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Button variant="destructive" size="sm" onClick={() => handleDeleteServer(server)} disabled={currentStatus === 'booked'}>
+                          <Button variant="destructive" size="sm" onClick={() => handleDeleteServer(server)}>
                             <Trash size={14} />
                           </Button>
                         </TableCell>

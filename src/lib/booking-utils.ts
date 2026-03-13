@@ -17,16 +17,12 @@ export function needsRenewalNotification(booking: Booking, threshold: number = 1
   return booking.daysBooked >= threshold && !booking.renewalNotificationSent;
 }
 
-export function getServerStatus(server: Server, bookings: Booking[]): 'available' | 'booked' | 'maintenance' | 'offline' {
-  if (server.status === 'maintenance' || server.status === 'offline') {
-    return server.status;
-  }
-  
+export function getServerStatus(server: Server, bookings: Booking[]): 'ready' | 'not_ready' {
   const activeBooking = bookings.find(booking => 
     booking.serverId === server.id && isBookingActive(booking)
   );
   
-  return activeBooking ? 'booked' : 'available';
+  return activeBooking ? 'not_ready' : server.status;
 }
 
 export function formatDate(dateString: string): string {

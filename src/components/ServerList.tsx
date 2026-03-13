@@ -15,9 +15,17 @@ import { toast } from 'sonner';
 
 type ServerPayload = {
   name: string;
-  specifications: { cpu: string; memory: string; storage: string; gpu?: string };
-  location: string;
+  teamAssigned?: string;
+  assignedUser?: string;
+  serverFamily?: string;
+  serverSku?: string;
   status?: string;
+  dateAllocated?: string;
+  duration?: string;
+  rmIp?: string;
+  slotId?: string;
+  homePool?: string;
+  firmwareVersion?: string;
 };
 
 interface ServerListProps {
@@ -29,10 +37,8 @@ interface ServerListProps {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  available:   'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800',
-  booked:      'bg-blue-100  dark:bg-blue-950/30  text-blue-800  dark:text-blue-400  border-blue-200  dark:border-blue-800',
-  maintenance: 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800',
-  offline:     'bg-red-100   dark:bg-red-950/30   text-red-800   dark:text-red-400   border-red-200   dark:border-red-800',
+  ready:     'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800',
+  not_ready: 'bg-red-100   dark:bg-red-950/30   text-red-800   dark:text-red-400   border-red-200   dark:border-red-800',
 };
 
 export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelete, isAdmin }: ServerListProps) {
@@ -46,21 +52,21 @@ export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelet
 
   const filtered = servers.filter(s => {
     const matchName   = s.name.toLowerCase().includes(search.toLowerCase()) ||
-                        s.specifications.cpu.toLowerCase().includes(search.toLowerCase()) ||
-                        s.location.toLowerCase().includes(search.toLowerCase());
+                        (s.teamAssigned || '').toLowerCase().includes(search.toLowerCase()) ||
+                        (s.serverSku || '').toLowerCase().includes(search.toLowerCase()) ||
+                        (s.serverFamily || '').toLowerCase().includes(search.toLowerCase());
     const matchStatus = filterStatus === 'all' || s.status === filterStatus;
     return matchName && matchStatus;
   });
 
   const downloadTemplate = () => {
     const rows = [
-      ['name', 'cpu', 'memory', 'storage', 'gpu', 'location', 'status'],
-      ['Lab-Server-AMD-01',   'AMD EPYC 7742 64-Core',  '256GB DDR4', '2TB NVMe SSD', 'AMD Radeon Pro W6800',  'Building A Room 101', 'available'],
-      ['Lab-Server-Intel-01', 'Intel Xeon Gold 6338',   '128GB DDR4', '1TB NVMe SSD', '',                      'Building B Room 202', 'available'],
-      ['Lab-Server-GPU-01',   'AMD EPYC 9654',          '512GB DDR5', '4TB NVMe SSD', 'NVIDIA A100 80GB x4',   'Building C Room 303', 'available'],
+      ['Team Assigned', 'User', 'Server Family', 'Server SKU', 'Server Name', 'Status', 'Date Allocated', 'Duration', 'RM IP', 'Slot #', 'Home Pool', 'Firmware Version'],
+      ['ATP', '', 'ARM64', 'C4143', 'C41431103M0902A', 'Ready', '', '', '10.93.144.206', 'Slot 1', 'MTPPool', '2.12.2025.0820'],
+      ['Storage', '', 'ARM64', 'C4142', 'C41421103M0401A', 'Ready', '', '', '10.93.145.101', 'Slot 2', 'MTPPool', '2.12.2025.0820'],
     ];
     const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = [22, 30, 16, 18, 24, 24, 12].map(w => ({ wch: w }));
+    ws['!cols'] = [16, 12, 14, 12, 22, 10, 16, 12, 18, 10, 12, 20].map(w => ({ wch: w }));
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Servers');
     XLSX.writeFile(wb, 'server-import-template.xlsx');
@@ -81,17 +87,23 @@ export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelet
       if (rows.length === 0) { toast.error('Excel file is empty'); return; }
 
       for (const row of rows) {
-        const name    = String(row.name     || row.Name     || '').trim();
-        const cpu     = String(row.cpu      || row.CPU      || '').trim();
-        const memory  = String(row.memory   || row.Memory   || '').trim();
-        const storage = String(row.storage  || row.Storage  || '').trim();
-        const gpu     = String(row.gpu      || row.GPU      || '').trim();
-        const loc     = String(row.location || row.Location || '').trim();
-        const status  = String(row.status   || row.Status   || 'available').trim();
+        const name          = String(row['Server Name']    || row.name           || '').trim();
+        const teamAssigned  = String(row['Team Assigned']  || row.teamAssigned   || '').trim();
+        const assignedUser  = String(row['User']           || row.assignedUser   || '').trim();
+        const serverFamily  = String(row['Server Family']  || row.serverFamily   || '').trim();
+        const serverSku     = String(row['Server SKU']     || row.serverSku      || '').trim();
+        const rawStatus     = String(row['Status']         || row.status         || 'Ready').trim();
+        const status        = rawStatus.toLowerCase().replace(/\s+/g, '') === 'notready' ? 'not_ready' : 'ready';
+        const dateAllocated = String(row['Date Allocated'] || row.dateAllocated  || '').trim();
+        const duration      = String(row['Duration']       || row.duration       || '').trim();
+        const rmIp          = String(row['RM IP']          || row.rmIp           || '').trim();
+        const slotId        = String(row['Slot #']         || row.slotId         || '').trim();
+        const homePool      = String(row['Home Pool']      || row.homePool       || '').trim();
+        const firmwareVersion = String(row['Firmware Version'] || row.firmwareVersion || '').trim();
 
-        if (!name || !cpu || !memory || !storage || !loc) { fail++; continue; }
+        if (!name) { fail++; continue; }
         try {
-          await onServerAdd({ name, specifications: { cpu, memory, storage, ...(gpu ? { gpu } : {}) }, location: loc, status });
+          await onServerAdd({ name, teamAssigned, assignedUser, serverFamily, serverSku, status, dateAllocated, duration, rmIp, slotId, homePool, firmwareVersion });
           ok++;
         } catch { fail++; }
       }
@@ -125,11 +137,9 @@ export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelet
   };
 
   const stats = {
-    total:       servers.length,
-    available:   servers.filter(s => s.status === 'available').length,
-    booked:      servers.filter(s => s.status === 'booked').length,
-    maintenance: servers.filter(s => s.status === 'maintenance').length,
-    offline:     servers.filter(s => s.status === 'offline').length,
+    total:     servers.length,
+    ready:     servers.filter(s => s.status === 'ready').length,
+    not_ready: servers.filter(s => s.status === 'not_ready').length,
   };
 
   return (
@@ -161,13 +171,11 @@ export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelet
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {([
-          { label: 'Total',       value: stats.total,       color: 'text-foreground' },
-          { label: 'Available',   value: stats.available,   color: 'text-green-600 dark:text-green-400' },
-          { label: 'Booked',      value: stats.booked,      color: 'text-blue-600  dark:text-blue-400'  },
-          { label: 'Maintenance', value: stats.maintenance, color: 'text-yellow-600 dark:text-yellow-400' },
-          { label: 'Offline',     value: stats.offline,     color: 'text-red-600   dark:text-red-400'   },
+          { label: 'Total',     value: stats.total,     color: 'text-foreground' },
+          { label: 'Ready',     value: stats.ready,     color: 'text-green-600 dark:text-green-400' },
+          { label: 'Not Ready', value: stats.not_ready, color: 'text-red-600 dark:text-red-400' },
         ] as const).map(stat => (
           <Card key={stat.label}>
             <CardHeader className="p-3 pb-1">
@@ -184,16 +192,14 @@ export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelet
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-sm">
           <MagnifyingGlass size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search by name, CPU, location…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+          <Input placeholder="Search by name, team, SKU, family…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
         </div>
         <Select value={filterStatus} onValueChange={setFilter}>
           <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="available">Available</SelectItem>
-            <SelectItem value="booked">Booked</SelectItem>
-            <SelectItem value="maintenance">Maintenance</SelectItem>
-            <SelectItem value="offline">Offline</SelectItem>
+            <SelectItem value="ready">Ready</SelectItem>
+            <SelectItem value="not_ready">Not Ready</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -205,11 +211,12 @@ export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelet
             <TableHeader>
               <TableRow>
                 <TableHead>Server Name</TableHead>
-                <TableHead>CPU</TableHead>
-                <TableHead>Memory</TableHead>
-                <TableHead>Storage</TableHead>
-                <TableHead>GPU</TableHead>
-                <TableHead>Location</TableHead>
+                <TableHead>Team</TableHead>
+                <TableHead>Family</TableHead>
+                <TableHead>SKU</TableHead>
+                <TableHead>RM IP</TableHead>
+                <TableHead>Home Pool</TableHead>
+                <TableHead>FW Version</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="w-16">Del</TableHead>
               </TableRow>
@@ -217,7 +224,7 @@ export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelet
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-16 text-muted-foreground">
+                  <TableCell colSpan={9} className="text-center py-16 text-muted-foreground">
                     <Desktop size={40} className="mx-auto mb-3 opacity-20" />
                     {servers.length === 0
                       ? 'No servers yet — click "Add Server" or "Import Excel" to get started'
@@ -227,21 +234,20 @@ export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelet
               ) : filtered.map(server => (
                 <TableRow key={server.id}>
                   <TableCell className="font-medium">{server.name}</TableCell>
-                  <TableCell className="text-sm">{server.specifications.cpu}</TableCell>
-                  <TableCell className="text-sm">{server.specifications.memory}</TableCell>
-                  <TableCell className="text-sm">{server.specifications.storage}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{server.specifications.gpu || '—'}</TableCell>
-                  <TableCell className="text-sm">{server.location}</TableCell>
+                  <TableCell className="text-sm">{server.teamAssigned || '—'}</TableCell>
+                  <TableCell className="text-sm">{server.serverFamily || '—'}</TableCell>
+                  <TableCell className="text-sm">{server.serverSku || '—'}</TableCell>
+                  <TableCell className="text-sm">{server.rmIp || '—'}</TableCell>
+                  <TableCell className="text-sm">{server.homePool || '—'}</TableCell>
+                  <TableCell className="text-sm">{server.firmwareVersion || '—'}</TableCell>
                   <TableCell>
                     <Select value={server.status} onValueChange={v => handleStatusChange(server.id, v)}>
-                      <SelectTrigger className="h-7 w-36 text-xs">
-                        <Badge className={`text-xs ${STATUS_COLORS[server.status] || ''}`}>{server.status}</Badge>
+                      <SelectTrigger className="h-7 w-32 text-xs">
+                        <Badge className={`text-xs ${STATUS_COLORS[server.status] || ''}`}>{server.status === 'ready' ? 'Ready' : 'Not Ready'}</Badge>
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="available">Available</SelectItem>
-                        <SelectItem value="booked">Booked</SelectItem>
-                        <SelectItem value="maintenance">Maintenance</SelectItem>
-                        <SelectItem value="offline">Offline</SelectItem>
+                        <SelectItem value="ready">Ready</SelectItem>
+                        <SelectItem value="not_ready">Not Ready</SelectItem>
                       </SelectContent>
                     </Select>
                   </TableCell>
@@ -250,8 +256,8 @@ export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelet
                       variant="ghost" size="sm"
                       className="h-7 w-7 p-0 text-destructive hover:text-destructive"
                       onClick={() => handleDelete(server)}
-                      disabled={server.status === 'booked'}
-                      title={server.status === 'booked' ? 'Cannot delete a booked server' : 'Delete'}
+                      disabled={server.status === 'not_ready'}
+                      title={server.status === 'not_ready' ? 'Cannot delete a not-ready server' : 'Delete'}
                     >
                       <Trash size={14} />
                     </Button>
@@ -264,7 +270,7 @@ export function ServerList({ servers, onServerAdd, onServerUpdate, onServerDelet
       </Card>
 
       <p className="text-xs text-muted-foreground">
-        📋 Excel columns: <code className="font-mono bg-muted px-1 rounded">name, cpu, memory, storage, gpu (optional), location, status</code>
+        📋 Excel columns: <code className="font-mono bg-muted px-1 rounded">Team Assigned, User, Server Family, Server SKU, Server Name, Status, Date Allocated, Duration, RM IP, Slot #, Home Pool, Firmware Version</code>
       </p>
 
       <AddServerDialog open={addOpen} onOpenChange={setAddOpen} onServerAdd={onServerAdd} />

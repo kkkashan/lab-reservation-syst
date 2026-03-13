@@ -3,7 +3,7 @@ import { getServerStatus, isBookingActive, formatDate } from '@/lib/booking-util
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Database, Cpu, HardDrive, Memory, MapPin, Calendar, User } from '@phosphor-icons/react';
+import { Database, Calendar, User } from '@phosphor-icons/react';
 
 interface ServerDetailsDialogProps {
   open: boolean;
@@ -27,14 +27,10 @@ export function ServerDetailsDialog({ open, onOpenChange, server, bookings }: Se
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'available':
+      case 'ready':
         return 'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800';
-      case 'booked':
+      case 'not_ready':
         return 'bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-800';
-      case 'maintenance':
-        return 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800';
-      case 'offline':
-        return 'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800';
       default:
         return 'bg-muted text-muted-foreground border-border';
     }
@@ -42,10 +38,8 @@ export function ServerDetailsDialog({ open, onOpenChange, server, bookings }: Se
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'available': return 'Available';
-      case 'booked': return 'Booked';
-      case 'maintenance': return 'Maintenance';
-      case 'offline': return 'Offline';
+      case 'ready': return 'Ready';
+      case 'not_ready': return 'Not Ready';
       default: return 'Unknown';
     }
   };
@@ -65,45 +59,38 @@ export function ServerDetailsDialog({ open, onOpenChange, server, bookings }: Se
             <Badge className={getStatusColor(status)}>
               {getStatusText(status)}
             </Badge>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin size={16} />
-              {server.location}
+            <div className="text-sm text-muted-foreground">
+              {server.teamAssigned && <span>Team: {server.teamAssigned}</span>}
             </div>
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-3">Specifications</h3>
+            <h3 className="text-lg font-semibold mb-3">Server Details</h3>
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                <Cpu size={20} className="text-muted-foreground" />
-                <div>
-                  <div className="text-sm text-muted-foreground">CPU</div>
-                  <div className="font-medium">{server.specifications.cpu}</div>
-                </div>
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <div className="text-sm text-muted-foreground">Server Family</div>
+                <div className="font-medium">{server.serverFamily || '—'}</div>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                <Memory size={20} className="text-muted-foreground" />
-                <div>
-                  <div className="text-sm text-muted-foreground">Memory</div>
-                  <div className="font-medium">{server.specifications.memory}</div>
-                </div>
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <div className="text-sm text-muted-foreground">Server SKU</div>
+                <div className="font-medium">{server.serverSku || '—'}</div>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                <HardDrive size={20} className="text-muted-foreground" />
-                <div>
-                  <div className="text-sm text-muted-foreground">Storage</div>
-                  <div className="font-medium">{server.specifications.storage}</div>
-                </div>
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <div className="text-sm text-muted-foreground">RM IP</div>
+                <div className="font-medium">{server.rmIp || '—'}</div>
               </div>
-              {server.specifications.gpu && (
-                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                  <div className="w-5 h-5 rounded bg-muted-foreground/20" />
-                  <div>
-                    <div className="text-sm text-muted-foreground">GPU</div>
-                    <div className="font-medium">{server.specifications.gpu}</div>
-                  </div>
-                </div>
-              )}
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <div className="text-sm text-muted-foreground">Slot #</div>
+                <div className="font-medium">{server.slotId || '—'}</div>
+              </div>
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <div className="text-sm text-muted-foreground">Home Pool</div>
+                <div className="font-medium">{server.homePool || '—'}</div>
+              </div>
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <div className="text-sm text-muted-foreground">Firmware Version</div>
+                <div className="font-medium">{server.firmwareVersion || '—'}</div>
+              </div>
             </div>
           </div>
 

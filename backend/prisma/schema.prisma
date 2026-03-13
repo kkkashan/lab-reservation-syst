@@ -36,23 +36,22 @@ model Session {
 }
 
 model Server {
-  id          String       @id @default(uuid())
-  name        String       @unique
-  cpuSpec     String       @map("cpu_spec")
-  memorySpec  String       @map("memory_spec")
-  storageSpec String       @map("storage_spec")
-  gpuSpec     String?      @map("gpu_spec")
-  status      ServerStatus @default(available)
-  location    String
-  rscmIp      String?      @map("rscm_ip")
-  slotId      Int?         @map("slot_id")
-  fwVersion   String?      @map("fw_version")
-  dsPool      String?      @map("ds_pool")
-  testHarness String?      @map("test_harness")
-  pool        String?
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt      @map("updated_at")
-  bookings    Booking[]
+  id              String       @id @default(uuid())
+  name            String       @unique
+  teamAssigned    String?      @map("team_assigned")
+  assignedUser    String?      @map("assigned_user")
+  serverFamily    String?      @map("server_family")
+  serverSku       String?      @map("server_sku")
+  status          ServerStatus @default(ready)
+  dateAllocated   DateTime?    @map("date_allocated")
+  duration        String?
+  rmIp            String?      @map("rm_ip")
+  slotId          String?      @map("slot_id")
+  homePool        String?      @map("home_pool")
+  firmwareVersion String?      @map("firmware_version")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt      @map("updated_at")
+  bookings        Booking[]
 
   @@index([status])
   @@index([name])
@@ -69,7 +68,6 @@ model Booking {
   status                  BookingStatus @default(active)
   renewalNotificationSent Boolean       @default(false) @map("renewal_notification_sent")
   daysBooked              Int           @map("days_booked")
-  teamAssigned            String?       @map("team_assigned")
   createdAt               DateTime      @default(now()) @map("created_at")
   updatedAt               DateTime      @updatedAt      @map("updated_at")
 
@@ -84,10 +82,8 @@ model Booking {
 }
 
 enum ServerStatus {
-  available
-  booked
-  maintenance
-  offline
+  ready
+  not_ready
 }
 
 enum BookingStatus {

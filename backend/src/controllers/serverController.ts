@@ -22,20 +22,17 @@ export const getAllServers = async (req: Request, res: Response, next: NextFunct
     const serversWithCurrentBooking = servers.map(server => ({
       id: server.id,
       name: server.name,
-      specifications: {
-        cpu: server.cpuSpec,
-        memory: server.memorySpec,
-        storage: server.storageSpec,
-        gpu: server.gpuSpec,
-      },
+      teamAssigned: server.teamAssigned,
+      assignedUser: server.assignedUser,
+      serverFamily: server.serverFamily,
+      serverSku: server.serverSku,
       status: server.status,
-      location: server.location,
-      rscmIp: server.rscmIp,
+      dateAllocated: server.dateAllocated,
+      duration: server.duration,
+      rmIp: server.rmIp,
       slotId: server.slotId,
-      fwVersion: server.fwVersion,
-      dsPool: server.dsPool,
-      testHarness: server.testHarness,
-      pool: server.pool,
+      homePool: server.homePool,
+      firmwareVersion: server.firmwareVersion,
       currentBooking: server.bookings[0] || null,
     }));
 
@@ -67,23 +64,22 @@ export const getServerById = async (req: Request, res: Response, next: NextFunct
 
 export const createServer = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, specifications, location, status, rscmIp, slotId, fwVersion, dsPool, testHarness, pool } = req.body;
+    const { name, teamAssigned, assignedUser, serverFamily, serverSku, status, dateAllocated, duration, rmIp, slotId, homePool, firmwareVersion } = req.body;
 
     const server = await prisma.server.create({
       data: {
         name,
-        cpuSpec: specifications.cpu,
-        memorySpec: specifications.memory,
-        storageSpec: specifications.storage,
-        gpuSpec: specifications.gpu ?? null,
-        location,
-        status: status || 'available',
-        rscmIp: rscmIp || null,
-        slotId: slotId != null ? Number(slotId) : null,
-        fwVersion: fwVersion || null,
-        dsPool: dsPool || null,
-        testHarness: testHarness || null,
-        pool: pool || null,
+        teamAssigned: teamAssigned || null,
+        assignedUser: assignedUser || null,
+        serverFamily: serverFamily || null,
+        serverSku: serverSku || null,
+        status: status || 'ready',
+        dateAllocated: dateAllocated ? new Date(dateAllocated) : null,
+        duration: duration || null,
+        rmIp: rmIp || null,
+        slotId: slotId || null,
+        homePool: homePool || null,
+        firmwareVersion: firmwareVersion || null,
       },
     });
 
@@ -96,24 +92,23 @@ export const createServer = async (req: Request, res: Response, next: NextFuncti
 export const updateServer = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = req.params.id as string;
-    const { name, specifications, status, location, rscmIp, slotId, fwVersion, dsPool, testHarness, pool } = req.body;
+    const { name, teamAssigned, assignedUser, serverFamily, serverSku, status, dateAllocated, duration, rmIp, slotId, homePool, firmwareVersion } = req.body;
 
     const server = await prisma.server.update({
       where: { id },
       data: {
         ...(name && { name }),
-        ...(specifications?.cpu && { cpuSpec: specifications.cpu }),
-        ...(specifications?.memory && { memorySpec: specifications.memory }),
-        ...(specifications?.storage && { storageSpec: specifications.storage }),
-        ...(specifications?.gpu !== undefined && { gpuSpec: specifications.gpu }),
+        ...(teamAssigned !== undefined && { teamAssigned: teamAssigned || null }),
+        ...(assignedUser !== undefined && { assignedUser: assignedUser || null }),
+        ...(serverFamily !== undefined && { serverFamily: serverFamily || null }),
+        ...(serverSku !== undefined && { serverSku: serverSku || null }),
         ...(status && { status }),
-        ...(location && { location }),
-        ...(rscmIp !== undefined && { rscmIp: rscmIp || null }),
-        ...(slotId !== undefined && { slotId: slotId != null ? Number(slotId) : null }),
-        ...(fwVersion !== undefined && { fwVersion: fwVersion || null }),
-        ...(dsPool !== undefined && { dsPool: dsPool || null }),
-        ...(testHarness !== undefined && { testHarness: testHarness || null }),
-        ...(pool !== undefined && { pool: pool || null }),
+        ...(dateAllocated !== undefined && { dateAllocated: dateAllocated ? new Date(dateAllocated) : null }),
+        ...(duration !== undefined && { duration: duration || null }),
+        ...(rmIp !== undefined && { rmIp: rmIp || null }),
+        ...(slotId !== undefined && { slotId: slotId || null }),
+        ...(homePool !== undefined && { homePool: homePool || null }),
+        ...(firmwareVersion !== undefined && { firmwareVersion: firmwareVersion || null }),
       },
     });
 

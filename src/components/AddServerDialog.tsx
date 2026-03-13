@@ -10,15 +10,17 @@ import { toast } from 'sonner';
 
 type ServerPayload = {
   name: string;
-  specifications: { cpu: string; memory: string; storage: string; gpu?: string };
-  location: string;
+  teamAssigned?: string;
+  assignedUser?: string;
+  serverFamily?: string;
+  serverSku?: string;
   status?: string;
-  rscmIp?: string;
-  slotId?: number;
-  fwVersion?: string;
-  dsPool?: string;
-  testHarness?: string;
-  pool?: string;
+  dateAllocated?: string;
+  duration?: string;
+  rmIp?: string;
+  slotId?: string;
+  homePool?: string;
+  firmwareVersion?: string;
 };
 
 interface AddServerDialogProps {
@@ -29,16 +31,16 @@ interface AddServerDialogProps {
 
 export function AddServerDialog({ open, onOpenChange, onServerAdd }: AddServerDialogProps) {
   const [formData, setFormData] = useState({
-    name: '', cpu: '', memory: '', storage: '', gpu: '', location: '', status: 'available',
-    rscmIp: '', slotId: '', fwVersion: '', dsPool: '', testHarness: '', pool: '',
+    name: '', teamAssigned: '', assignedUser: '', serverFamily: '', serverSku: '', status: 'ready',
+    dateAllocated: '', duration: '', rmIp: '', slotId: '', homePool: '', firmwareVersion: '',
   });
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const resetForm = () => {
     setFormData({
-      name: '', cpu: '', memory: '', storage: '', gpu: '', location: '', status: 'available',
-      rscmIp: '', slotId: '', fwVersion: '', dsPool: '', testHarness: '', pool: '',
+      name: '', teamAssigned: '', assignedUser: '', serverFamily: '', serverSku: '', status: 'ready',
+      dateAllocated: '', duration: '', rmIp: '', slotId: '', homePool: '', firmwareVersion: '',
     });
     setError(null);
     setIsSubmitting(false);
@@ -49,27 +51,22 @@ export function AddServerDialog({ open, onOpenChange, onServerAdd }: AddServerDi
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!formData.name.trim())                                         { setError('Server name is required'); return; }
-    if (!formData.cpu.trim() || !formData.memory.trim() || !formData.storage.trim()) { setError('CPU, Memory, and Storage are required'); return; }
-    if (!formData.location.trim())                                     { setError('Location is required'); return; }
+    if (!formData.name.trim())  { setError('Server name is required'); return; }
     setIsSubmitting(true);
     try {
       await onServerAdd({
         name: formData.name.trim(),
-        specifications: {
-          cpu: formData.cpu.trim(),
-          memory: formData.memory.trim(),
-          storage: formData.storage.trim(),
-          ...(formData.gpu.trim() ? { gpu: formData.gpu.trim() } : {}),
-        },
+        teamAssigned: formData.teamAssigned.trim() || undefined,
+        assignedUser: formData.assignedUser.trim() || undefined,
+        serverFamily: formData.serverFamily.trim() || undefined,
+        serverSku: formData.serverSku.trim() || undefined,
         status: formData.status,
-        location: formData.location.trim(),
-        ...(formData.rscmIp.trim() ? { rscmIp: formData.rscmIp.trim() } : {}),
-        ...(formData.slotId.trim() ? { slotId: Number(formData.slotId) } : {}),
-        ...(formData.fwVersion.trim() ? { fwVersion: formData.fwVersion.trim() } : {}),
-        ...(formData.dsPool.trim() ? { dsPool: formData.dsPool.trim() } : {}),
-        ...(formData.testHarness.trim() ? { testHarness: formData.testHarness.trim() } : {}),
-        ...(formData.pool.trim() ? { pool: formData.pool.trim() } : {}),
+        dateAllocated: formData.dateAllocated.trim() || undefined,
+        duration: formData.duration.trim() || undefined,
+        rmIp: formData.rmIp.trim() || undefined,
+        slotId: formData.slotId.trim() || undefined,
+        homePool: formData.homePool.trim() || undefined,
+        firmwareVersion: formData.firmwareVersion.trim() || undefined,
       });
       toast.success(`Server "${formData.name}" added successfully!`);
       handleClose();
@@ -98,66 +95,46 @@ export function AddServerDialog({ open, onOpenChange, onServerAdd }: AddServerDi
               <Input id="server-name" placeholder="e.g., C41431103M0902A" value={formData.name} onChange={e => set('name', e.target.value)} required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="cpu">CPU *</Label>
-              <Input id="cpu" placeholder="e.g., Cobalt 200 / Xeon Gold 6338" value={formData.cpu} onChange={e => set('cpu', e.target.value)} required />
+              <Label htmlFor="team-assigned">Team Assigned</Label>
+              <Input id="team-assigned" placeholder="e.g., ATP" value={formData.teamAssigned} onChange={e => set('teamAssigned', e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="memory">Memory *</Label>
-              <Input id="memory" placeholder="e.g., 128GB DDR4" value={formData.memory} onChange={e => set('memory', e.target.value)} required />
+              <Label htmlFor="assigned-user">Assigned User</Label>
+              <Input id="assigned-user" placeholder="e.g., John Doe" value={formData.assignedUser} onChange={e => set('assignedUser', e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="storage">Storage *</Label>
-              <Input id="storage" placeholder="e.g., 2TB NVMe SSD" value={formData.storage} onChange={e => set('storage', e.target.value)} required />
+              <Label htmlFor="server-family">Server Family</Label>
+              <Input id="server-family" placeholder="e.g., ARM64" value={formData.serverFamily} onChange={e => set('serverFamily', e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="gpu">GPU (Optional)</Label>
-              <Input id="gpu" placeholder="e.g., NVIDIA A100 80GB" value={formData.gpu} onChange={e => set('gpu', e.target.value)} />
+              <Label htmlFor="server-sku">Server SKU</Label>
+              <Input id="server-sku" placeholder="e.g., C4143" value={formData.serverSku} onChange={e => set('serverSku', e.target.value)} />
             </div>
-            <div className="space-y-2 col-span-2">
-              <Label htmlFor="location">Location *</Label>
-              <Input id="location" placeholder="e.g., SCHIE/B50 Lab" value={formData.location} onChange={e => set('location', e.target.value)} required />
+            <div className="space-y-2">
+              <Label htmlFor="rm-ip">RM IP</Label>
+              <Input id="rm-ip" placeholder="e.g., 10.93.144.206" value={formData.rmIp} onChange={e => set('rmIp', e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="slot-id">Slot #</Label>
+              <Input id="slot-id" placeholder="e.g., Slot 1" value={formData.slotId} onChange={e => set('slotId', e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="home-pool">Home Pool</Label>
+              <Input id="home-pool" placeholder="e.g., MTPPool" value={formData.homePool} onChange={e => set('homePool', e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="fw-version">Firmware Version</Label>
+              <Input id="fw-version" placeholder="e.g., 2.12.2025.0820" value={formData.firmwareVersion} onChange={e => set('firmwareVersion', e.target.value)} />
             </div>
             <div className="space-y-2 col-span-2">
               <Label htmlFor="status">Initial Status</Label>
               <Select value={formData.status} onValueChange={v => set('status', v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="available">Available</SelectItem>
-                  <SelectItem value="maintenance">Maintenance</SelectItem>
-                  <SelectItem value="offline">Offline</SelectItem>
+                  <SelectItem value="ready">Ready</SelectItem>
+                  <SelectItem value="not_ready">Not Ready</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-          </div>
-
-          {/* Infrastructure Details */}
-          <div className="border-t border-border pt-4">
-            <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">Infrastructure Details (Optional)</p>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="rscm-ip">RScm IP</Label>
-                <Input id="rscm-ip" placeholder="e.g., 172.29.94.21" value={formData.rscmIp} onChange={e => set('rscmIp', e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="slot-id">Slot ID</Label>
-                <Input id="slot-id" type="number" placeholder="e.g., 2" value={formData.slotId} onChange={e => set('slotId', e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="fw-version">FW Version</Label>
-                <Input id="fw-version" placeholder="e.g., 1.2.3" value={formData.fwVersion} onChange={e => set('fwVersion', e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="test-harness">Test Harness</Label>
-                <Input id="test-harness" placeholder="e.g., WTT" value={formData.testHarness} onChange={e => set('testHarness', e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="ds-pool">DS</Label>
-                <Input id="ds-pool" placeholder="e.g., WDGExecutionDS02" value={formData.dsPool} onChange={e => set('dsPool', e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="pool">Pool</Label>
-                <Input id="pool" placeholder="e.g., $\Teams\Core\Base\..." value={formData.pool} onChange={e => set('pool', e.target.value)} />
-              </div>
             </div>
           </div>
 

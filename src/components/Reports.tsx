@@ -42,7 +42,7 @@ export function Reports() {
     const today = new Date();
     servers.forEach(s => {
       const st = getServerStatus(s, bookings);
-      if (st === 'available') available++;
+      if (st === 'ready') available++;
       else {
         const activeBooking = bookings.find(b => b.serverId === s.id && b.status === 'active');
         if (activeBooking && new Date(activeBooking.endDate) < today) overdueCount++;
@@ -50,7 +50,7 @@ export function Reports() {
       }
     });
     return [
-      { name: 'Available', value: available, color: '#22c55e' },
+      { name: 'Ready', value: available, color: '#22c55e' },
       { name: 'Reserved', value: reserved, color: '#3b82f6' },
       { name: 'Overdue', value: overdueCount, color: '#ef4444' },
     ];
@@ -75,7 +75,7 @@ export function Reports() {
       const duration = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / 86400000));
       const isOverdue = end < new Date() && b.status === 'active';
       return {
-        id: b.id, server: server?.name || b.serverId, owner: b.bookedBy,
+        id: b.id, server: server?.name || b.serverId, owner: b.userName,
         startDate: b.startDate, endDate: b.endDate, duration,
         status: isOverdue ? 'Overdue' : b.status === 'active' ? 'Active' : b.status === 'completed' ? 'Completed' : 'Cancelled',
       };
@@ -98,7 +98,7 @@ export function Reports() {
       return {
         id: b.id,
         action: isOverdue ? 'Overdue' : b.status === 'active' ? 'Booked' : 'Completed',
-        detail: `${b.bookedBy} — ${server?.name || b.serverId}`,
+        detail: `${b.userName} — ${server?.name || b.serverId}`,
         time: formatDate(b.startDate),
       };
     });

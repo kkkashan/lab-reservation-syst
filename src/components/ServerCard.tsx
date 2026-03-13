@@ -3,7 +3,7 @@ import { getServerStatus, isBookingActive } from '@/lib/booking-utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Database, Cpu, HardDrive, Memory, Calendar } from '@phosphor-icons/react';
+import { Database, Calendar } from '@phosphor-icons/react';
 
 interface ServerCardProps {
   server: Server;
@@ -20,14 +20,10 @@ export function ServerCard({ server, bookings, onBook, onViewDetails }: ServerCa
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'available':
+      case 'ready':
         return 'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800';
-      case 'booked':
+      case 'not_ready':
         return 'bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-blue-800';
-      case 'maintenance':
-        return 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800';
-      case 'offline':
-        return 'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800';
       default:
         return 'bg-muted text-muted-foreground border-border';
     }
@@ -35,10 +31,8 @@ export function ServerCard({ server, bookings, onBook, onViewDetails }: ServerCa
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'available': return 'Available';
-      case 'booked': return 'Booked';
-      case 'maintenance': return 'Maintenance';
-      case 'offline': return 'Offline';
+      case 'ready': return 'Ready';
+      case 'not_ready': return 'Not Ready';
       default: return 'Unknown';
     }
   };
@@ -59,33 +53,30 @@ export function ServerCard({ server, bookings, onBook, onViewDetails }: ServerCa
       
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="flex items-center gap-2">
-            <Cpu size={16} className="text-muted-foreground" />
-            <span className="text-muted-foreground">CPU:</span>
-            <span className="font-medium">{server.specifications.cpu}</span>
+          <div>
+            <span className="text-muted-foreground">Team:</span>
+            <span className="font-medium ml-1">{server.teamAssigned || '—'}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Memory size={16} className="text-muted-foreground" />
-            <span className="text-muted-foreground">RAM:</span>
-            <span className="font-medium">{server.specifications.memory}</span>
+          <div>
+            <span className="text-muted-foreground">SKU:</span>
+            <span className="font-medium ml-1">{server.serverSku || '—'}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <HardDrive size={16} className="text-muted-foreground" />
-            <span className="text-muted-foreground">Storage:</span>
-            <span className="font-medium">{server.specifications.storage}</span>
+          <div>
+            <span className="text-muted-foreground">Family:</span>
+            <span className="font-medium ml-1">{server.serverFamily || '—'}</span>
           </div>
-          {server.specifications.gpu && (
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">GPU:</span>
-              <span className="font-medium">{server.specifications.gpu}</span>
-            </div>
-          )}
+          <div>
+            <span className="text-muted-foreground">RM IP:</span>
+            <span className="font-medium ml-1">{server.rmIp || '—'}</span>
+          </div>
         </div>
 
-        <div className="text-sm">
-          <span className="text-muted-foreground">Location:</span>
-          <span className="font-medium ml-1">{server.location}</span>
-        </div>
+        {server.homePool && (
+          <div className="text-sm">
+            <span className="text-muted-foreground">Home Pool:</span>
+            <span className="font-medium ml-1">{server.homePool}</span>
+          </div>
+        )}
 
         {activeBooking && (
           <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-md border border-blue-200 dark:border-blue-800">
@@ -105,8 +96,8 @@ export function ServerCard({ server, bookings, onBook, onViewDetails }: ServerCa
           <Button onClick={() => onViewDetails(server)} variant="outline" size="sm" className="flex-1">
             View Details
           </Button>
-          <Button onClick={() => onBook(server)} disabled={status !== 'available'} size="sm" className="flex-1">
-            {status === 'available' ? 'Book Server' : 'Unavailable'}
+          <Button onClick={() => onBook(server)} disabled={status !== 'ready'} size="sm" className="flex-1">
+            {status === 'ready' ? 'Book Server' : 'Unavailable'}
           </Button>
         </div>
       </CardContent>

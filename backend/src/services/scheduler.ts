@@ -30,7 +30,7 @@ export async function runWeeklyDigest(): Promise<{ sent: number; skipped: number
   });
 
   // Get available server count
-  const availableCount = await prisma.server.count({ where: { status: 'available' } });
+  const availableCount = await prisma.server.count({ where: { status: 'ready' } });
 
   let sent = 0;
   let skipped = 0;
